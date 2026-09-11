@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aguacates del Valle · Demo del sistema</title>
+<style>
+  :root{
+    --pulpa:#EEF2CF;--pulpa-2:#E2E8B4;--hoja:#1F3A1C;--hoja-2:#2E5227;
+    --maduro:#8FBF3C;--maduro-2:#6E9B2A;--hueso:#8A5A2B;--hueso-2:#5E3B19;
+    --cascara:#2A2129;--papel:#FBFBF4;--tinta:#1B1F17;--tinta-2:#5B6352;
+    --linea:#C9D1A6;--alerta:#D9741B;--rojo:#B83A2B;--r:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Avenir Next","Segoe UI Variable","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--pulpa);color:var(--tinta);line-height:1.45;font-variant-numeric:tabular-nums;font-size:16px}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  input,select{font:inherit}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--maduro);outline-offset:2px}
+  h1,h2,h3{font-weight:700;letter-spacing:-.01em;line-height:1.1}
+
+  .app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+  .rail{background:var(--hoja);color:var(--pulpa);padding:26px 18px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+  .marca{margin-bottom:26px}
+  .marca .n{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .marca .s{font-size:13px;color:var(--maduro);margin-top:6px}
+  .rail button{text-align:left;padding:10px 12px;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center;gap:8px;color:#D8E4C4}
+  .rail button small{font-size:11px;opacity:.7;font-weight:500}
+  .rail button .badge{background:var(--alerta);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px}
+  .rail button:hover{background:var(--hoja-2)}
+  .rail button[aria-current="page"]{background:var(--maduro);color:var(--hoja);font-weight:700}
+  .rail .pie{margin-top:auto;font-size:12px;color:#9DB48A;line-height:1.5}
+  .rail .pie button{display:inline;padding:0;color:var(--maduro);text-decoration:underline;font-size:12px}
+
+  .main{padding:34px 40px 60px;max-width:1080px}
+  .cab{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+  .cab h1{font-size:34px;font-weight:800;letter-spacing:-.03em}
+  .cab p{color:var(--tinta-2);max-width:56ch;margin-top:6px;font-size:15px}
+  .quien{background:var(--hoja);color:var(--pulpa);padding:8px 12px;border-radius:var(--r);font-size:13px;white-space:nowrap}
+  .quien b{color:var(--maduro)}
+  .pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+  .paso{background:var(--pulpa-2);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;font-size:14px}
+  .paso i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--hoja);color:var(--maduro);font-weight:800;display:grid;place-items:center;font-size:13px}
+  .paso b{display:block}
+  .paso span{color:var(--tinta-2);font-size:13px}
+  .vista{display:none}.vista.activa{display:block}
+
+  .pantalla{background:var(--papel);border:1px solid var(--linea);border-radius:14px;box-shadow:0 24px 48px -32px rgba(31,58,28,.45);overflow:hidden}
+  .pantalla.telefono{width:380px;max-width:100%;margin:0 auto;border-radius:30px;border:6px solid var(--cascara)}
+  .barra{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--hoja);color:var(--pulpa);font-size:13px;gap:8px;flex-wrap:wrap}
+  .barra b{color:var(--maduro)}
+  .barra select{background:var(--hoja-2);color:var(--pulpa);border:1px solid var(--maduro-2);border-radius:4px;padding:3px 6px;font-size:13px}
+  .cuerpo{padding:18px}
+  .fila{display:flex;gap:14px}.col{flex:1}
+
+  .peso{background:var(--cascara);color:var(--papel);border-radius:10px;padding:14px 18px;margin-bottom:14px}
+  .peso .kg{font-size:64px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .peso .kg em{font-style:normal;font-size:22px;color:var(--maduro);margin-left:6px;font-weight:600}
+  .peso .lbl{font-size:12px;color:#B8B3B6;display:flex;justify-content:space-between;align-items:center}
+  .peso .lbl span{display:inline-flex;align-items:center;gap:6px}
+  .peso .lbl span.on::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--maduro);box-shadow:0 0 0 3px rgba(143,191,60,.25)}
+  .peso input[type=range]{width:100%;margin-top:10px;accent-color:var(--maduro)}
+  .calibres{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .calibre{border-radius:10px;padding:14px;text-align:left;border:2px solid var(--linea);background:var(--pulpa);display:flex;flex-direction:column;gap:4px;min-height:88px;transition:transform .08s}
+  .calibre:active{transform:scale(.97)}
+  .calibre .n{font-size:19px;font-weight:800;letter-spacing:-.02em}
+  .calibre .p{font-size:14px;color:var(--tinta-2)}
+  .calibre .st{font-size:12px;color:var(--tinta-2)}
+  .calibre[aria-pressed="true"]{background:var(--maduro);border-color:var(--hoja);color:var(--hoja)}
+  .calibre[aria-pressed="true"] .p,.calibre[aria-pressed="true"] .st{color:var(--hoja-2)}
+
+  .ticket{background:#fff;border:1px dashed var(--linea);border-radius:4px;padding:16px;font-size:14px;min-height:320px;display:flex;flex-direction:column}
+  .ticket h3{font-size:13px;color:var(--tinta-2);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between}
+  .ticket .lin{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:6px 0;border-bottom:1px solid #EEF0E4;align-items:center}
+  .ticket .lin small{display:block;color:var(--tinta-2);font-size:12px}
+  .ticket .lin .x{color:var(--rojo);font-weight:700;padding:0 4px}
+  .ticket .vacio{color:var(--tinta-2);font-size:13px;padding:20px 0;text-align:center}
+  .ticket .tot{margin-top:auto;padding-top:12px;display:flex;justify-content:space-between;align-items:baseline}
+  .ticket .tot b{font-size:34px;font-weight:800;letter-spacing:-.03em}
+  .pago{background:var(--pulpa);border-radius:8px;padding:12px;margin-top:10px;display:none}
+  .pago.on{display:block}
+  .pago label{font-size:13px;color:var(--tinta-2);display:block}
+  .pago input{width:100%;font-size:22px;font-weight:700;padding:6px 10px;border:2px solid var(--linea);border-radius:6px;margin:4px 0 8px}
+  .pago .cambio{display:flex;justify-content:space-between;font-size:15px;margin-bottom:10px}
+  .pago .cambio b{font-size:22px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:var(--r);font-weight:700;font-size:15px}
+  .btn.p{background:var(--hoja);color:var(--pulpa)}.btn.p:hover{background:var(--hoja-2)}
+  .btn.s{background:var(--pulpa-2);color:var(--hoja)}.btn.w{width:100%}.btn.h{background:var(--hueso);color:#fff}
+  .btn.chico{padding:7px 12px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .aviso{margin-top:12px;background:var(--pulpa-2);border-left:4px solid var(--maduro);padding:10px 12px;font-size:13px;color:var(--hoja)}
+  .aviso.rojo{border-color:var(--alerta);background:#F6E3C7;color:var(--hueso-2)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-weight:600;color:var(--tinta-2);font-size:12px;padding:8px 10px;border-bottom:2px solid var(--linea)}
+  td{padding:10px;border-bottom:1px solid #E7EBD2;vertical-align:middle}
+  td.num,th.num{text-align:right}
+  tr.sel{cursor:pointer}tr.sel:hover{background:var(--pulpa)}tr.sel.on{background:var(--pulpa-2)}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:#E7EBD2;color:var(--tinta-2)}
+  .pill.ok{background:#DCEBC0;color:var(--hoja)}.pill.pend{background:#F6E3C7;color:var(--hueso-2)}.pill.mal{background:#F2D6D1;color:var(--rojo)}
+  .tarj{background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:16px}
+  .tarj h3{font-size:15px;margin-bottom:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .cifra{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .cifra small{font-size:13px;color:var(--tinta-2);font-weight:500;display:block;margin-top:6px;letter-spacing:0}
+  .cifra.mal{color:var(--rojo)}.cifra.ok{color:var(--hoja-2)}
+  .form{display:grid;grid-template-columns:1fr 1fr 90px auto;gap:8px;align-items:end;margin-top:6px}
+  .form label{font-size:12px;color:var(--tinta-2);display:block}
+  .form select,.form input{width:100%;padding:8px;border:1px solid var(--linea);border-radius:4px;background:#fff}
+
+  .cola{display:flex;flex-direction:column;gap:8px}
+  .orden{display:grid;grid-template-columns:52px 1fr auto auto;gap:12px;align-items:center;background:var(--pulpa);border-radius:8px;padding:10px 12px;font-size:14px}
+  .orden .num{font-size:22px;font-weight:800;color:var(--hoja)}
+  .orden .det small{display:block;color:var(--tinta-2);font-size:12px}
+  .orden .imp{font-weight:700;font-size:17px}
+  .orden.nueva{animation:entra .4s ease-out}
+  @keyframes entra{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+
+  .fila-desc{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #E7EBD2}
+  .fila-desc .n{font-weight:700;font-size:17px}
+  .fila-desc .n small{display:block;font-weight:500;color:var(--tinta-2);font-size:12px}
+  .cont{display:flex;align-items:center;gap:6px}
+  .cont button{width:46px;height:46px;border-radius:10px;background:var(--hoja);color:var(--pulpa);font-size:24px;font-weight:700;display:grid;place-items:center}
+  .cont button.m{background:var(--pulpa-2);color:var(--hoja)}
+  .cont output{min-width:44px;text-align:center;font-size:24px;font-weight:800}
+  .resumen{background:var(--cascara);color:var(--papel);border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+  .resumen .kg{font-size:30px;font-weight:800;letter-spacing:-.03em}
+  .resumen .kg em{font-style:normal;color:var(--maduro);font-size:14px;margin-left:4px}
+  .resumen .kg.mal{color:#F5A15C}
+  .resumen small{color:#B8B3B6;display:block;font-size:12px}
+
+  .chat{background:#EAE3D6;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:260px;max-height:320px;overflow:auto}
+  .msg{background:#fff;border-radius:10px;padding:8px 12px;max-width:85%;font-size:14px;align-self:flex-start;box-shadow:0 1px 0 rgba(0,0,0,.05)}
+  .msg.audio{display:flex;align-items:center;gap:8px}
+  .msg.audio .onda{height:18px;flex:1;background:repeating-linear-gradient(90deg,#8FBF3C 0 3px,transparent 3px 6px);border-radius:2px;opacity:.7}
+  .msg.trans{font-size:12px;color:#5B6352;background:#F3F0E8}
+  .msg time{display:block;font-size:11px;color:#8A8A8A;margin-top:4px;text-align:right}
+  .msg.sistema{align-self:flex-end;background:#DCEBC0}
+  .borrador{border:2px solid var(--maduro);border-radius:10px;padding:14px;background:#fff}
+  .borrador .lin{display:grid;grid-template-columns:1fr 70px 90px;gap:8px;padding:6px 0;border-bottom:1px solid #EEF0E4;font-size:14px;align-items:center}
+  .borrador input{border:1px solid var(--linea);border-radius:4px;padding:4px 6px;width:100%;text-align:right}
+  .borrador .nota{font-size:12px;color:var(--tinta-2);margin:8px 0}
+  .borrador .tot{display:flex;justify-content:space-between;font-weight:700;font-size:17px;padding:8px 0}
+
+  .entrega{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid #E7EBD2;align-items:center}
+  .entrega .n{font-weight:700}.entrega .n small{display:block;font-weight:500;color:var(--tinta-2);font-size:12px}
+  .entrega.actual{background:var(--pulpa);margin:0 -18px;padding:12px 18px;border-radius:8px}
+  .sinred{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--cascara);color:#F5D08C;padding:8px 12px;font-size:13px}
+  .sinred.ok{color:#B9E27A}
+  .sinred label{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--papel)}
+  .linea-ent{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+  .linea-ent .cont button{width:34px;height:34px;font-size:18px;border-radius:7px}
+  .linea-ent .cont output{font-size:17px;min-width:60px}
+  .firma{height:70px;border:1px dashed var(--linea);border-radius:6px;background:#fff;position:relative;margin-top:8px;cursor:crosshair;touch-action:none}
+  .firma canvas{position:absolute;inset:0;width:100%;height:100%}
+  .firma span{position:absolute;inset:0;display:grid;place-items:center;font-size:12px;color:var(--tinta-2);pointer-events:none}
+
+  .rep-lista{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .rep{background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+  .rep b{display:block;font-size:15px}.rep span{font-size:13px;color:var(--tinta-2)}
+  .rep em{font-style:normal;font-size:12px;background:var(--pulpa-2);color:var(--hoja);padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .chart-wrap{height:220px}
+  .suc-bar{display:grid;grid-template-columns:120px 1fr 80px;gap:10px;align-items:center;font-size:14px;padding:6px 0}
+  .suc-bar .b{height:14px;background:var(--pulpa-2);border-radius:3px;overflow:hidden}
+  .suc-bar .b i{display:block;height:100%;background:var(--maduro-2);transition:width .4s}
+
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--cascara);color:var(--papel);padding:12px 18px;border-radius:10px;font-size:14px;max-width:min(520px,92vw);opacity:0;transition:.25s;pointer-events:none;z-index:9;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)}
+  .toast.on{opacity:1;transform:translateX(-50%)}
+  .toast b{color:var(--maduro)}
+  .toast.imp{background:#fff;color:var(--tinta);border:1px dashed var(--linea);font-family:"Courier New",monospace;white-space:pre;font-size:12px;line-height:1.35}
+
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;gap:6px;padding:16px}
+    .marca{width:100%;margin-bottom:8px}.rail .pie{width:100%;margin-top:8px}.rail button small{display:none}
+    .main{padding:22px 16px 50px}.pasos,.grid2,.grid3,.rep-lista{grid-template-columns:1fr}.fila{flex-direction:column}.cab h1{font-size:28px}.form{grid-template-columns:1fr 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Módulos del sistema">
+    <div class="marca"><div class="n">Aguacates<br>del Valle</div><div class="s">Demo del sistema · sep 2026</div></div>
+    <button data-v="mostrador" aria-current="page">Mostrador <small>caja</small></button>
+    <button data-v="pesador">Pesador y caja <span class="badge" id="b-ordenes">3</span></button>
+    <button data-v="descarga">Descarga de tráiler <small>celular</small></button>
+    <button data-v="pedidos">Pedidos <span class="badge" id="b-pedidos">1</span></button>
+    <button data-v="entregas">Entregas en ruta <small>chofer</small></button>
+    <button data-v="sucursales">Sucursales <small>inventario</small></button>
+    <button data-v="reportes">Reportes <small>dueño</small></button>
+    <div class="pie">Todo lo que hagas aquí se refleja en inventario y reportes.<br><button id="reset">Reiniciar demo</button></div>
+  </nav>
+
+  <main class="main">
+
+    <!-- MOSTRADOR -->
+    <section class="vista activa" id="v-mostrador">
+      <div class="cab"><div><h1>Mostrador</h1><p>La venta rápida. El cajero pone el aguacate en la báscula, toca el calibre y cobra. No teclea precios ni multiplica nada.</p></div><div class="quien">Lo usa: <b>cajero</b> · Equipo: tableta + báscula</div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Pesa</b><span>El peso entra solo desde la báscula</span></div></div>
+        <div class="paso"><i>2</i><div><b>Toca el calibre</b><span>El sistema aplica el precio del día</span></div></div>
+        <div class="paso"><i>3</i><div><b>Cobra</b><span>Sale el ticket y baja el inventario</span></div></div>
+      </div>
+      <div class="pantalla">
+        <div class="barra"><span>Caja 1 · Mercado central</span><span>Cajero: <b>Rosa M.</b></span>
+          <span>Cliente: <select id="cliente"><option value="menudeo">Público (menudeo)</option><option value="mayoreo">Restaurante La Ceiba (mayoreo)</option></select></span></div>
+        <div class="cuerpo fila">
+          <div class="col" style="flex:1.4">
+            <div class="peso">
+              <div class="lbl"><span class="on">Báscula Torrey conectada</span><span>estable</span></div>
+              <div class="kg"><span id="kg">1.245</span><em>kg</em></div>
+              <input type="range" id="kgr" min="0.2" max="12" step="0.005" value="1.245" aria-label="Simular peso en la báscula">
+              <div class="lbl" style="margin-top:6px"><span>Mueve el control para simular lo que marca la báscula</span></div>
+            </div>
+            <div class="calibres" id="calibres"></div>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button class="btn p" id="agregar" style="flex:1">Agregar al ticket</button>
+              <button class="btn s" id="caja10">Caja de 10 kg</button>
+            </div>
+          </div>
+          <div class="col">
+            <div class="ticket">
+              <h3><span>Ticket <span id="tnum">0428</span></span><span id="tlista">Menudeo</span></h3>
+              <div id="lineas"></div>
+              <div class="tot"><span>Total</span><b id="total">$0.00</b></div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn p" style="flex:1" data-m="Efectivo">Efectivo</button>
+                <button class="btn s" style="flex:1" data-m="Tarjeta">Tarjeta</button>
+                <button class="btn s" style="flex:1" data-m="Transferencia">Transfer.</button>
+              </div>
+              <div class="pago" id="pago">
+                <label>Recibido en efectivo</label>
+                <input type="number" id="recibido" inputmode="decimal">
+                <div class="cambio"><span>Cambio</span><b id="cambio">$0.00</b></div>
+                <div style="display:flex;gap:8px"><button class="btn p" style="flex:1" id="confirmar">Confirmar y imprimir</button><button class="btn s" id="cancelar">Cancelar</button></div>
+              </div>
+            </div>
+            <div class="aviso" id="av-most">Al cobrar, se descuentan los kilos del calibre en el inventario del mercado central y queda registrado que lo vendió Rosa.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PESADOR Y CAJA -->
+    <section class="vista" id="v-pesador">
+      <div class="cab"><div><h1>Pesador y caja</h1><p>Para las horas pico. Varios trabajadores pesan y arman órdenes; una sola caja cobra. Quien pesa no toca dinero, quien cobra no decide precios.</p></div><div class="quien">Lo usan: <b>pesadores</b> y <b>cajero</b></div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>El pesador arma la orden</b><span>Pesa, toca calibre, guarda con un número</span></div></div>
+        <div class="paso"><i>2</i><div><b>El cliente pasa a caja</b><span>Con su número o su nombre</span></div></div>
+        <div class="paso"><i>3</i><div><b>La caja cobra</b><span>Abre la orden, cobra, da cambio, imprime</span></div></div>
+      </div>
+      <div class="grid2">
+        <div class="pantalla">
+          <div class="barra"><span>Pantalla de pesador</span><span>Trabajador: <b>Luis</b></span></div>
+          <div class="cuerpo">
+            <div class="peso" style="margin-bottom:12px">
+              <div class="lbl"><span class="on">Báscula 2</span></div>
+              <div class="kg"><span id="kg2">4.870</span><em>kg</em></div>
+              <input type="range" id="kgr2" min="0.2" max="30" step="0.005" value="4.870" aria-label="Simular peso">
+            </div>
+            <div class="calibres" id="calibres2"></div>
+            <div id="orden-actual" style="font-size:13px;color:var(--tinta-2);margin-top:10px;min-height:20px"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn s" id="agregar2" style="flex:1">Agregar renglón</button>
+              <button class="btn h" id="guardar-orden" style="flex:1.4">Guardar para caja</button>
+            </div>
+            <div class="aviso">Luis nunca ve el botón de cobrar. Solo arma la orden.</div>
+          </div>
+        </div>
+        <div class="pantalla">
+          <div class="barra"><span>Caja 1 · órdenes por cobrar</span><span><b id="n-ordenes">3 pendientes</b></span></div>
+          <div class="cuerpo cola" id="cola"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESCARGA -->
+    <section class="vista" id="v-descarga">
+      <div class="cab"><div><h1>Descarga de tráiler</h1><p>Cuando llega mercancía, el encargado cuenta cajas por calibre en el celular mientras bajan. Al confirmar, el inventario de bodega sube solo.</p></div><div class="quien">Lo usa: <b>encargado de bodega</b> · Equipo: celular</div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Abre la descarga</b><span>Elige de qué huerta o proveedor viene</span></div></div>
+        <div class="paso"><i>2</i><div><b>Cuenta cajas</b><span>Un toque por caja, por calibre</span></div></div>
+        <div class="paso"><i>3</i><div><b>Confirma</b><span>Entra al inventario con fecha y responsable</span></div></div>
+      </div>
+      <div class="grid2" style="align-items:start">
+        <div class="pantalla telefono">
+          <div class="barra"><span>Descarga #<span id="dnum">117</span></span><span><select id="huerta"><option>Huerta San Isidro</option><option>Huerta Los Pinos</option><option>Empacadora del Sur</option></select></span></div>
+          <div class="cuerpo" id="desc">
+            <div id="desc-filas"></div>
+            <div class="resumen">
+              <div><small>Total contado</small><div class="kg" id="c-tot-w"><span id="c-tot">0</span><em>kg</em></div></div>
+              <div style="text-align:right"><small>Remisión dice</small><div class="kg" style="font-size:20px"><span id="remision">3,000</span><em>kg</em></div></div>
+            </div>
+            <button class="btn p w" style="margin-top:12px" id="conf-desc">Confirmar descarga</button>
+            <div class="aviso" id="av-desc">Si lo contado no coincide con la remisión, la diferencia queda registrada. Ya no se pierde en el camino.</div>
+          </div>
+        </div>
+        <div class="tarj">
+          <h3>Descargas de esta semana</h3>
+          <table><thead><tr><th>#</th><th>Origen</th><th class="num">Contado</th><th class="num">Remisión</th><th class="num">Dif.</th></tr></thead><tbody id="desc-log"></tbody></table>
+          <div class="aviso" style="margin-top:14px">Con el tiempo, este reporte dice qué proveedor manda de menos.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section class="vista" id="v-pedidos">
+      <div class="cab"><div><h1>Pedidos por WhatsApp</h1><p>Los mensajes de los clientes entran a una bandeja. El sistema propone el pedido; una persona lo revisa y confirma. Nada sale del almacén sin que alguien lo apruebe.</p></div><div class="quien">Lo usa: <b>oficina</b> · Número dedicado de negocio</div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Llega el mensaje</b><span>Texto o audio, el cliente se identifica por su número</span></div></div>
+        <div class="paso"><i>2</i><div><b>El sistema propone</b><span>Interpreta "lo de siempre" con el historial</span></div></div>
+        <div class="paso"><i>3</i><div><b>Oficina confirma</b><span>Se agenda a ruta y se avisa al cliente</span></div></div>
+      </div>
+      <div class="tarj" style="margin-bottom:14px">
+        <h3>Bandeja de hoy · toca un renglón para abrirlo</h3>
+        <table><thead><tr><th>Cliente</th><th>Mensaje</th><th>Entrega</th><th class="num">Importe</th><th>Estado</th></tr></thead><tbody id="bandeja"></tbody></table>
+      </div>
+      <div class="grid2">
+        <div class="tarj"><h3 id="chat-t"></h3><div class="chat" id="chat"></div>
+          <div style="display:flex;gap:8px;margin-top:10px"><input id="resp" placeholder="Responder al cliente…" style="flex:1;padding:8px;border:1px solid var(--linea);border-radius:4px"><button class="btn p chico" id="enviar-resp">Enviar</button></div>
+        </div>
+        <div class="borrador" id="borrador"></div>
+      </div>
+    </section>
+
+    <!-- ENTREGAS -->
+    <section class="vista" id="v-entregas">
+      <div class="cab"><div><h1>Entregas en ruta</h1><p>La app del chofer. Descarga su ruta con wifi en el patio, trabaja todo el día sin señal, y sube todo cuando la recupera. Cierra la ruta con el dinero que trae.</p></div><div class="quien">Lo usa: <b>chofer</b> · App instalada en el celular</div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Sale con su ruta</b><span>Paradas en orden, qué lleva cada una</span></div></div>
+        <div class="paso"><i>2</i><div><b>Entrega y ajusta</b><span>Cantidad real, firma, cobro si es contra entrega</span></div></div>
+        <div class="paso"><i>3</i><div><b>Cierra la ruta</b><span>Cuadra dinero entregado contra lo cobrado</span></div></div>
+      </div>
+      <div class="pantalla telefono">
+        <div class="barra"><span>Ruta 2 · Camión 7</span><span>Chofer: <b>Beto</b></span></div>
+        <div class="sinred" id="sinred"><span id="estado-red"></span><label><input type="checkbox" id="red" checked> Sin señal</label></div>
+        <div class="cuerpo" id="ent-cuerpo"></div>
+      </div>
+    </section>
+
+    <!-- SUCURSALES -->
+    <section class="vista" id="v-sucursales">
+      <div class="cab"><div><h1>Sucursales e inventario</h1><p>Cada punto tiene su propio inventario y su propia caja. Los traspasos desde la bodega quedan registrados, y el dueño ve todo junto o cada lugar por separado.</p></div><div class="quien">Lo ve: <b>dueño</b> y <b>encargados</b></div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Bodega envía</b><span>Traspaso de cajas a la sucursal</span></div></div>
+        <div class="paso"><i>2</i><div><b>Sucursal recibe</b><span>Confirma desde su tableta lo que llegó</span></div></div>
+        <div class="paso"><i>3</i><div><b>Vende y se descuenta</b><span>Solo por caja, sin báscula</span></div></div>
+      </div>
+      <div class="tarj"><table><thead><tr><th>Existencias en kg</th><th class="num">Extra</th><th class="num">Primera</th><th class="num">Segunda</th><th class="num">Cuarta</th><th class="num">Total</th><th>Alerta</th></tr></thead><tbody id="inv"></tbody></table></div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="tarj">
+          <h3>Traspaso desde bodega</h3>
+          <div class="form">
+            <div><label>A sucursal</label><select id="t-dest"><option value="mercado">Mercado central</option><option value="reforma">Local Reforma</option><option value="tlacolula">Local Tlacolula</option></select></div>
+            <div><label>Calibre</label><select id="t-cal"><option value="e">Hass Extra</option><option value="p">Hass Primera</option><option value="s">Hass Segunda</option><option value="c">Hass Cuarta</option></select></div>
+            <div><label>Cajas</label><input type="number" id="t-cajas" value="10" min="1"></div>
+            <button class="btn p" id="t-enviar">Enviar</button>
+          </div>
+          <h3 style="margin-top:16px">Traspasos de hoy</h3>
+          <table><thead><tr><th>A</th><th>Cajas</th><th>Estado</th></tr></thead><tbody id="traspasos"></tbody></table>
+        </div>
+        <div class="tarj"><h3>Ventas de hoy por punto</h3><div id="ventas-punto"></div>
+          <div class="aviso">Estas barras se mueven con cada cobro que hagas en Mostrador, Caja o Entregas.</div></div>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section class="vista" id="v-reportes">
+      <div class="cab"><div><h1>Reportes del dueño</h1><p>Lo que tu amigo ve desde su celular sin preguntarle a nadie. Todo sale de las mismas ventas, descargas y entregas que ya registró la gente.</p></div><div class="quien">Lo ve: <b>dueño</b> · desde el celular</div></div>
+      <div class="grid3">
+        <div class="tarj"><div class="cifra" id="r-hoy">$0<small>Vendido hoy · todos los puntos</small></div></div>
+        <div class="tarj"><div class="cifra" id="r-inv">0<small>Kilos en existencia · todos los puntos</small></div></div>
+        <div class="tarj"><div class="cifra mal" id="r-cxc">$38,900<small>Por cobrar vencido · 4 clientes</small></div></div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="tarj"><h3>Corte de caja por cajero · hoy</h3><table><thead><tr><th>Cajero</th><th class="num">Tickets</th><th class="num">Efectivo</th><th class="num">Tarjeta / transf.</th><th class="num">Total</th></tr></thead><tbody id="corte"></tbody></table></div>
+        <div class="tarj"><h3>Kilos vendidos hoy por calibre</h3><div id="kg-calibre"></div></div>
+      </div>
+      <div class="grid2" style="margin-top:14px">
+        <div class="tarj"><h3>Kilos por semana · menudeo vs mayoreo</h3>
+          <div class="chart-wrap"><svg viewBox="0 0 420 220" width="100%" height="100%" role="img" aria-label="Kilos por semana">
+            <g font-size="11" fill="#5B6352"><text x="6" y="30">20t</text><text x="6" y="90">15t</text><text x="6" y="150">10t</text><text x="6" y="188">0</text></g>
+            <g stroke="#E7EBD2"><line x1="36" y1="26" x2="410" y2="26"/><line x1="36" y1="86" x2="410" y2="86"/><line x1="36" y1="146" x2="410" y2="146"/></g>
+            <g><rect x="60" y="80" width="46" height="55" fill="#8FBF3C"/><rect x="60" y="135" width="46" height="55" fill="#1F3A1C"/><rect x="130" y="73" width="46" height="57" fill="#8FBF3C"/><rect x="130" y="130" width="46" height="60" fill="#1F3A1C"/><rect x="200" y="66" width="46" height="54" fill="#8FBF3C"/><rect x="200" y="120" width="46" height="70" fill="#1F3A1C"/><rect x="270" y="63" width="46" height="60" fill="#8FBF3C"/><rect x="270" y="123" width="46" height="67" fill="#1F3A1C"/><rect x="340" y="52" width="46" height="63" fill="#8FBF3C"/><rect x="340" y="115" width="46" height="75" fill="#1F3A1C"/></g>
+            <g font-size="11" fill="#5B6352" text-anchor="middle"><text x="83" y="206">sem 32</text><text x="153" y="206">sem 33</text><text x="223" y="206">sem 34</text><text x="293" y="206">sem 35</text><text x="363" y="206">sem 36</text></g>
+            <g font-size="11" fill="#1B1F17"><rect x="230" y="6" width="10" height="10" fill="#8FBF3C"/><text x="245" y="15">Menudeo y caja</text><rect x="330" y="6" width="10" height="10" fill="#1F3A1C"/><text x="345" y="15">Mayoreo en ruta</text></g>
+          </svg></div></div>
+        <div class="tarj"><h3>Merma acumulada por calibre · kg</h3><div id="merma"></div></div>
+      </div>
+      <h2 style="font-size:20px;margin-top:26px">Todos los reportes disponibles</h2>
+      <div class="rep-lista">
+        <div class="rep"><div><b>Corte de caja por cajero</b><span>Lo que debió haber en caja contra lo que se contó, por persona y por turno.</span></div><em>diario</em></div>
+        <div class="rep"><div><b>Ventas por calibre y por punto</b><span>Kilos e importe por día, semana o mes, separando menudeo, caja y mayoreo.</span></div><em>cuando quiera</em></div>
+        <div class="rep"><div><b>Inventario en tiempo real</b><span>Existencias por calibre en bodega, sucursales y camiones. Alertas por agotarse.</span></div><em>en vivo</em></div>
+        <div class="rep"><div><b>Merma</b><span>Kilos perdidos por maduración, golpes o rechazo, por calibre y por dónde ocurrió.</span></div><em>semanal</em></div>
+        <div class="rep"><div><b>Descargas contra remisión</b><span>Lo que llegó de cada huerta contra lo que decía el papel. Diferencias por proveedor.</span></div><em>por descarga</em></div>
+        <div class="rep"><div><b>Cuentas por cobrar</b><span>Quién debe cuánto, desde cuándo, y qué clientes se pasan del plazo.</span></div><em>diario</em></div>
+        <div class="rep"><div><b>Cierre de ruta por chofer</b><span>Entregas hechas, rechazos, efectivo cobrado contra efectivo entregado en patio.</span></div><em>por ruta</em></div>
+        <div class="rep"><div><b>Margen por calibre</b><span>A cuánto se compró contra a cuánto se vendió, ya con merma descontada.</span></div><em>mensual</em></div>
+        <div class="rep"><div><b>Clientes de mayoreo</b><span>Cuánto compra cada empresa, con qué frecuencia y si está bajando o subiendo.</span></div><em>mensual</em></div>
+        <div class="rep"><div><b>Facturas emitidas</b><span>CFDI timbrados, pendientes y cancelados, listos para el contador.</span></div><em>mensual</em></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= ESTADO COMPARTIDO ================= */
+const NOM = {e:'Hass Extra', p:'Hass Primera', s:'Hass Segunda', c:'Hass Cuarta'};
+const CAL = ['e','p','s','c'];
+const PUNTOS = {bodega:'Bodega central', mercado:'Mercado central', reforma:'Local Reforma', tlacolula:'Local Tlacolula', camion:'Camiones en ruta'};
+let S;
+function estadoInicial(){
+  return {
+    precios:{menudeo:{e:58,p:48,s:38,c:28}, mayoreo:{e:55,p:45,s:35,c:25}},
+    inv:{bodega:{e:4120,p:6840,s:2910,c:980}, mercado:{e:380,p:620,s:240,c:110}, reforma:{e:60,p:180,s:90,c:0}, tlacolula:{e:120,p:250,s:140,c:40}, camion:{e:230,p:380,s:40,c:0}},
+    merma:{e:70,p:140,s:95,c:60},
+    base:{mercado:41300, reforma:14200, tlacolula:9600, camion:50150},
+    baseKg:{e:610,p:1140,s:420,c:130},
+    ventas:[], tnum:428, onum:32, dnum:117,
+    lista:'menudeo', calibre:'e', ticket:[],
+    calibre2:'e', orden2:[],
+    ordenes:[
+      {num:31, quien:'Luis', lin:[{k:'e',kg:4.87}], hace:'hace 1 min'},
+      {num:30, quien:'Ana', lin:[{k:'p',kg:12},{k:'s',kg:3.4}], hace:'hace 3 min'},
+      {num:29, quien:'Luis', lin:[{k:'e',kg:20}], hace:'hace 4 min', cliente:'Sr. Ramírez'}
+    ],
+    desc:{e:86,p:140,s:64,m:3},
+    descargas:[
+      {num:115, origen:'Huerta Los Pinos', contado:4200, rem:4200},
+      {num:116, origen:'Huerta San Isidro', contado:2950, rem:3000}
+    ],
+    pedidos:[
+      {id:0, cliente:'Restaurante La Ceiba', tel:'951 234 8871', msg:'Lo de siempre + 5 extra', entrega:'jue 10', estado:'Por revisar', lin:{e:15,p:20}, credito:'Crédito 15 días', hora:'antes de 10:00',
+        chat:[{t:'Buen día, mándame lo de siempre para el jueves y 5 cajas más de la extra',h:'8:14'},{audio:true,tr:'ah y que vaya antes de las diez porque abrimos temprano'},{sys:true,t:'Recibido. Te confirmamos en un momento.',h:'8:14'}],
+        nota:'"Lo de siempre" se tomó de los últimos 4 pedidos (10 Extra + 20 Primera).'},
+      {id:1, cliente:'Súper El Roble', tel:'951 118 2204', msg:'30 cajas primera', entrega:'mié 9', estado:'Agendado', lin:{p:30}, credito:'Crédito 30 días', hora:'',
+        chat:[{t:'30 de primera para mañana porfa',h:'7:50'},{sys:true,t:'Confirmado: 30 cajas Hass Primera, entrega miércoles 9. Gracias.',h:'7:58'}], nota:''},
+      {id:2, cliente:'Cocina Doña Mary', tel:'951 402 7719', msg:'¿a cómo la extra?', entrega:'', estado:'Solo pregunta', lin:{}, credito:'Contado', hora:'',
+        chat:[{t:'Hola, ¿a cómo la extra hoy?',h:'8:31'}], nota:'No hay pedido todavía. Responde con el precio y el sistema espera la respuesta.'},
+      {id:3, cliente:'Hotel Mirador', tel:'951 517 9930', msg:'8 cajas extra, factura', entrega:'mié 9', estado:'Agendado', lin:{e:8}, credito:'Contra entrega, con factura', hora:'',
+        chat:[{t:'8 cajas de la extra para mañana, con factura por favor',h:'7:20'},{sys:true,t:'Confirmado: 8 cajas Hass Extra, entrega miércoles 9, con factura. Se cobra contra entrega $4,400.',h:'7:31'}], nota:''}
+    ],
+    pedSel:0,
+    entregas:[
+      {cliente:'Súper El Roble', det:'30 cajas Primera · a crédito', lin:{p:30}, cobro:0, estado:'Entregado 8:40', hecho:true},
+      {cliente:'Hotel Mirador', det:'8 cajas Extra · cobrar $4,400', lin:{e:8}, cobro:4400, estado:'Cobrado 9:15', hecho:true},
+      {cliente:'Restaurante La Ceiba', det:'15 Extra + 20 Primera · antes de 10:00', lin:{e:15,p:20}, cobro:0, estado:'', hecho:false},
+      {cliente:'Cocina Doña Mary', det:'4 cajas Segunda · cobrar $1,520', lin:{s:4}, cobro:1520, estado:'', hecho:false}
+    ],
+    entLin:null, firmado:false, sinSenal:true, porSubir:2, efectivo:4400, rutaCerrada:false,
+    traspasos:[{dest:'reforma', k:'e', cajas:20, estado:'En camino'},{dest:'reforma', k:'p', cajas:30, estado:'En camino'},{dest:'tlacolula', k:'p', cajas:20, estado:'Recibido 7:50'}]
+  };
+}
+S = estadoInicial();
+
+/* ================= UTILIDADES ================= */
+const $ = id => document.getElementById(id);
+const dinero = n => '$' + n.toLocaleString('es-MX',{minimumFractionDigits:2, maximumFractionDigits:2});
+const dinero0 = n => '$' + Math.round(n).toLocaleString('es-MX');
+const kgf = n => n.toLocaleString('es-MX');
+const hora = () => new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+let toastT;
+function toast(html, imp){
+  const t = $('toast'); t.innerHTML = html; t.className = 'toast on' + (imp ? ' imp' : '');
+  clearTimeout(toastT); toastT = setTimeout(()=> t.className='toast', imp ? 4200 : 2800);
+}
+function registrarVenta(v){ S.ventas.push(v); for (const l of v.lin){ if (v.punto !== 'camion') S.inv[v.punto][l.k] = Math.max(0, S.inv[v.punto][l.k] - l.kg); } actualizarBadges(); }
+function actualizarBadges(){
+  $('b-ordenes').textContent = S.ordenes.length; $('b-ordenes').style.display = S.ordenes.length ? '' : 'none';
+  const pr = S.pedidos.filter(p => p.estado === 'Por revisar').length;
+  $('b-pedidos').textContent = pr; $('b-pedidos').style.display = pr ? '' : 'none';
+}
+function imprimir(tnum, lin, total, metodo, cajero){
+  let s = `   AGUACATES DEL VALLE\n   Mercado central · Caja 1\n   Ticket ${tnum}  ${hora()}\n   Cajero: ${cajero}\n   ------------------------\n`;
+  for (const l of lin) s += `   ${NOM[l.k].padEnd(13)} ${l.kg.toFixed(3)} kg\n      ${(l.kg*l.p).toFixed(2).padStart(20)}\n`;
+  s += `   ------------------------\n   TOTAL ${dinero(total).padStart(18)}\n   ${metodo}\n   Gracias por su compra`;
+  toast(s, true);
+}
+
+/* ================= NAVEGACIÓN ================= */
+const botones = document.querySelectorAll('.rail button[data-v]');
+botones.forEach(b => b.addEventListener('click', () => {
+  botones.forEach(x => x.removeAttribute('aria-current')); b.setAttribute('aria-current','page');
+  document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+  $('v-' + b.dataset.v).classList.add('activa'); renderTodo(); window.scrollTo({top:0});
+}));
+$('reset').addEventListener('click', () => { S = estadoInicial(); renderTodo(); toast('Demo reiniciado con los datos originales'); });
+
+/* ================= MOSTRADOR ================= */
+function renderCalibres(cont, sel, lista, punto, onSel){
+  cont.innerHTML = CAL.map(k => `<button class="calibre" data-k="${k}" aria-pressed="${k===sel}"><span class="n">${NOM[k]}</span><span class="p">${dinero(S.precios[lista][k])} / kg</span><span class="st">${kgf(Math.round(S.inv[punto][k]))} kg en piso</span></button>`).join('');
+  cont.querySelectorAll('.calibre').forEach(c => c.addEventListener('click', () => onSel(c.dataset.k)));
+}
+function renderMostrador(){
+  renderCalibres($('calibres'), S.calibre, S.lista, 'mercado', k => { S.calibre = k; renderMostrador(); });
+  $('cliente').value = S.lista; $('tlista').textContent = S.lista === 'menudeo' ? 'Menudeo' : 'Mayoreo · La Ceiba';
+  $('tnum').textContent = String(S.tnum).padStart(4,'0');
+  const L = $('lineas');
+  L.innerHTML = S.ticket.length ? S.ticket.map((l,i) => `<div class="lin"><div>${NOM[l.k]}<small>${l.kg.toFixed(3)} kg × ${dinero(l.p)}</small></div><div>${dinero(l.kg*l.p)}</div><button class="x" data-i="${i}" aria-label="Quitar renglón">×</button></div>`).join('') : '<div class="vacio">Ticket vacío. Pesa algo y toca un calibre.</div>';
+  L.querySelectorAll('.x').forEach(b => b.addEventListener('click', () => { S.ticket.splice(Number(b.dataset.i),1); renderMostrador(); }));
+  $('total').textContent = dinero(totalTicket());
+}
+const totalTicket = () => S.ticket.reduce((a,l)=>a+l.kg*l.p,0);
+$('kgr').addEventListener('input', () => $('kg').textContent = Number($('kgr').value).toFixed(3));
+$('cliente').addEventListener('change', e => { S.lista = e.target.value; S.ticket.forEach(l => l.p = S.precios[S.lista][l.k]); renderMostrador(); toast(S.lista==='mayoreo' ? 'Lista de <b>mayoreo</b> aplicada: los precios bajaron solos' : 'Lista de <b>menudeo</b> aplicada'); });
+$('agregar').addEventListener('click', () => { S.ticket.push({k:S.calibre, kg:Number($('kgr').value), p:S.precios[S.lista][S.calibre]}); renderMostrador(); });
+$('caja10').addEventListener('click', () => { S.ticket.push({k:S.calibre, kg:10, p:S.precios[S.lista][S.calibre]}); renderMostrador(); toast('Caja de 10 kg de <b>' + NOM[S.calibre] + '</b> agregada'); });
+let metodoSel = 'Efectivo';
+document.querySelectorAll('#v-mostrador [data-m]').forEach(b => b.addEventListener('click', () => {
+  if (!S.ticket.length) return toast('El ticket está vacío');
+  metodoSel = b.dataset.m;
+  if (metodoSel === 'Efectivo'){ $('pago').classList.add('on'); const t = totalTicket(); $('recibido').value = Math.ceil(t/50)*50; calcCambio(); $('recibido').focus(); }
+  else cerrarVenta();
+}));
+function calcCambio(){ const c = Number($('recibido').value) - totalTicket(); $('cambio').textContent = dinero(Math.max(0,c)); $('confirmar').disabled = c < 0; }
+$('recibido').addEventListener('input', calcCambio);
+$('cancelar').addEventListener('click', () => $('pago').classList.remove('on'));
+$('confirmar').addEventListener('click', cerrarVenta);
+function cerrarVenta(){
+  const total = totalTicket(), lin = S.ticket.slice();
+  registrarVenta({punto:'mercado', cajero:'Rosa M.', metodo:metodoSel, total, lin, tnum:S.tnum});
+  imprimir(String(S.tnum).padStart(4,'0'), lin, total, metodoSel, 'Rosa M.');
+  $('av-most').innerHTML = `Ticket ${String(S.tnum).padStart(4,'0')} cobrado en ${metodoSel} por <b>${dinero(total)}</b>. Se descontaron ${lin.reduce((a,l)=>a+l.kg,0).toFixed(3)} kg del mercado central. Ve a <b>Reportes</b> o <b>Sucursales</b> y búscalo.`;
+  S.tnum++; S.ticket = []; $('pago').classList.remove('on'); renderMostrador();
+}
+
+/* ================= PESADOR Y CAJA ================= */
+$('kgr2').addEventListener('input', () => $('kg2').textContent = Number($('kgr2').value).toFixed(3));
+function renderPesador(){
+  renderCalibres($('calibres2'), S.calibre2, 'menudeo', 'mercado', k => { S.calibre2 = k; renderPesador(); });
+  $('orden-actual').textContent = S.orden2.length ? 'Orden en armado: ' + S.orden2.map(l => `${NOM[l.k]} ${l.kg.toFixed(3)} kg`).join(' + ') : 'Sin renglones todavía';
+  $('n-ordenes').textContent = S.ordenes.length + ' pendientes';
+  const C = $('cola');
+  C.innerHTML = S.ordenes.length ? S.ordenes.map(o => {
+    const imp = o.lin.reduce((a,l)=>a+l.kg*S.precios.menudeo[l.k],0);
+    return `<div class="orden${o.nueva?' nueva':''}"><div class="num">#${o.num}</div><div class="det">${o.lin.map(l=>`${NOM[l.k].replace('Hass ','')} ${l.kg.toFixed(l.kg%1?3:0)} kg`).join(' + ')}<small>${o.quien} · ${o.hace}${o.cliente?' · '+o.cliente:''}</small></div><div class="imp">${dinero(imp)}</div><button class="btn p chico" data-n="${o.num}">Cobrar</button></div>`;
+  }).join('') + '<div class="aviso">El cajero solo cobra. Si el corte no cuadra, se sabe quién pesó y quién cobró cada orden.</div>'
+  : '<div class="ticket"><div class="vacio">No hay órdenes por cobrar. Arma una en la pantalla del pesador.</div></div>';
+  S.ordenes.forEach(o => o.nueva = false);
+  C.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => {
+    const i = S.ordenes.findIndex(o => o.num == b.dataset.n), o = S.ordenes[i];
+    const lin = o.lin.map(l => ({...l, p:S.precios.menudeo[l.k]})), total = lin.reduce((a,l)=>a+l.kg*l.p,0);
+    registrarVenta({punto:'mercado', cajero:'Rosa M.', pesador:o.quien, metodo:'Efectivo', total, lin, tnum:S.tnum});
+    imprimir(String(S.tnum).padStart(4,'0'), lin, total, 'Efectivo · orden #'+o.num+' pesó '+o.quien, 'Rosa M.');
+    S.tnum++; S.ordenes.splice(i,1); actualizarBadges(); renderPesador();
+  }));
+}
+$('agregar2').addEventListener('click', () => { S.orden2.push({k:S.calibre2, kg:Number($('kgr2').value)}); renderPesador(); });
+$('guardar-orden').addEventListener('click', () => {
+  if (!S.orden2.length) S.orden2.push({k:S.calibre2, kg:Number($('kgr2').value)});
+  S.ordenes.unshift({num:S.onum, quien:'Luis', lin:S.orden2, hace:'ahora', nueva:true});
+  toast(`Orden <b>#${S.onum}</b> guardada. Ya aparece en la caja para cobrar.`);
+  S.onum++; S.orden2 = []; actualizarBadges(); renderPesador();
+});
+
+/* ================= DESCARGA ================= */
+function renderDescarga(){
+  $('dnum').textContent = S.dnum;
+  const filas = [['e','Hass Extra','caja de 10 kg'],['p','Hass Primera','caja de 10 kg'],['s','Hass Segunda','caja de 10 kg'],['m','Merma en descarga','golpeado o maduro']];
+  $('desc-filas').innerHTML = filas.map(([k,n,s]) => `<div class="fila-desc"><div class="n">${n}<small>${s}</small></div><div class="cont"><button class="m" data-d="-1" data-k="${k}" aria-label="Quitar caja">−</button><output>${S.desc[k]}</output><button data-d="1" data-k="${k}" aria-label="Agregar caja">+</button></div></div>`).join('');
+  $('desc-filas').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { S.desc[b.dataset.k] = Math.max(0, S.desc[b.dataset.k] + Number(b.dataset.d)); renderDescarga(); }));
+  const tot = (S.desc.e+S.desc.p+S.desc.s)*10, dif = tot - 3000;
+  $('c-tot').textContent = kgf(tot); $('c-tot-w').classList.toggle('mal', dif < 0);
+  $('av-desc').className = 'aviso' + (dif<0?' rojo':''); $('av-desc').innerHTML = dif<0 ? `Faltan <b>${kgf(-dif)} kg</b> contra la remisión. Al confirmar, la diferencia queda cargada a este proveedor.` : dif>0 ? `Llegaron ${kgf(dif)} kg de más que la remisión.` : 'Lo contado coincide con la remisión.';
+  $('desc-log').innerHTML = S.descargas.slice().reverse().map(d => { const df = d.contado - d.rem; return `<tr><td>${d.num}</td><td>${d.origen}</td><td class="num">${kgf(d.contado)}</td><td class="num">${kgf(d.rem)}</td><td class="num" style="color:${df<0?'var(--rojo)':'var(--hoja-2)'};font-weight:700">${df>0?'+':''}${kgf(df)}</td></tr>`; }).join('');
+}
+$('conf-desc').addEventListener('click', () => {
+  const tot = (S.desc.e+S.desc.p+S.desc.s)*10;
+  if (!tot) return toast('No has contado ninguna caja');
+  S.inv.bodega.e += S.desc.e*10; S.inv.bodega.p += S.desc.p*10; S.inv.bodega.s += S.desc.s*10; S.merma.s += S.desc.m*10;
+  S.descargas.push({num:S.dnum, origen:$('huerta').value, contado:tot, rem:3000});
+  toast(`Descarga <b>#${S.dnum}</b> confirmada: entraron <b>${kgf(tot)} kg</b> a bodega${S.desc.m?` y ${S.desc.m*10} kg a merma`:''}. Revisa <b>Sucursales</b>.`);
+  S.dnum++; S.desc = {e:0,p:0,s:0,m:0}; renderDescarga();
+});
+
+/* ================= PEDIDOS ================= */
+const pillDe = e => ({'Por revisar':'pend','Agendado':'ok','Solo pregunta':'','Cancelado':'mal'})[e] || '';
+const impPedido = p => CAL.reduce((a,k)=>a+(p.lin[k]||0)*10*S.precios.mayoreo[k],0);
+function renderPedidos(){
+  $('bandeja').innerHTML = S.pedidos.map(p => `<tr class="sel${p.id===S.pedSel?' on':''}" data-id="${p.id}"><td>${p.cliente}</td><td>${p.msg}</td><td>${p.entrega||'—'}</td><td class="num">${impPedido(p)?dinero0(impPedido(p)):'—'}</td><td><span class="pill ${pillDe(p.estado)}">${p.estado}</span></td></tr>`).join('');
+  $('bandeja').querySelectorAll('tr').forEach(r => r.addEventListener('click', () => { S.pedSel = Number(r.dataset.id); renderPedidos(); }));
+  const p = S.pedidos.find(x => x.id === S.pedSel);
+  $('chat-t').textContent = `${p.cliente} · ${p.tel}`;
+  const ch = $('chat');
+  ch.innerHTML = p.chat.map(m => m.audio ? `<div class="msg audio"><span>▶</span><span class="onda"></span><span style="font-size:12px;color:#8A8A8A">0:21</span></div><div class="msg trans">Transcripción: "${m.tr}"</div>` : `<div class="msg${m.sys?' sistema':''}">${m.t}<time>${m.h}</time></div>`).join('');
+  ch.scrollTop = ch.scrollHeight;
+  const B = $('borrador'), tieneLin = Object.keys(p.lin).length;
+  if (!tieneLin){ B.innerHTML = `<h3 style="font-size:15px;margin-bottom:10px">Sin pedido que proponer</h3><div class="nota">${p.nota}</div><button class="btn s" id="precios-btn">Enviar precios de hoy</button>`; $('precios-btn').addEventListener('click', () => responder(p, `Hoy: Extra ${dinero0(S.precios.mayoreo.e)}/kg, Primera ${dinero0(S.precios.mayoreo.p)}/kg, Segunda ${dinero0(S.precios.mayoreo.s)}/kg por caja de 10 kg.`)); return; }
+  const ag = p.estado === 'Agendado';
+  B.innerHTML = `<h3 style="font-size:15px;margin-bottom:10px">${ag?'Pedido agendado':'Pedido propuesto · revisar y confirmar'}</h3>
+    <div class="lin" style="font-size:12px;color:var(--tinta-2)"><span>Producto</span><span style="text-align:right">Cajas</span><span style="text-align:right">Importe</span></div>
+    ${CAL.filter(k => p.lin[k] !== undefined).map(k => `<div class="lin"><span>${NOM[k]}</span><input type="number" min="0" value="${p.lin[k]}" data-k="${k}" ${ag?'disabled':''}><span style="text-align:right" id="imp-${k}">${dinero0(p.lin[k]*10*S.precios.mayoreo[k])}</span></div>`).join('')}
+    <div class="tot"><span>Total</span><span id="imp-tot">${dinero0(impPedido(p))}</span></div>
+    <div class="nota">Lista de precios: mayoreo · Entrega: ${p.entrega||'por definir'}${p.hora?', '+p.hora:''} · ${p.credito}</div>
+    ${p.nota?`<div class="nota" style="color:var(--hueso-2)">${p.nota}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:10px">${ag?`<span class="pill ok">Ya está en la ruta del ${p.entrega}</span>`:`<button class="btn p" style="flex:1" id="conf-ped">Confirmar y agendar</button><button class="btn s" id="canc-ped">Cancelar pedido</button>`}</div>`;
+  B.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => { p.lin[i.dataset.k] = Number(i.value)||0; $('imp-'+i.dataset.k).textContent = dinero0(p.lin[i.dataset.k]*10*S.precios.mayoreo[i.dataset.k]); $('imp-tot').textContent = dinero0(impPedido(p)); }));
+  if (!ag){
+    $('conf-ped').addEventListener('click', () => {
+      p.estado = 'Agendado';
+      const det = CAL.filter(k=>p.lin[k]).map(k=>`${p.lin[k]} ${NOM[k].replace('Hass ','')}`).join(' + ');
+      responder(p, `Confirmado: ${det}, entrega ${p.entrega}${p.hora?' '+p.hora:''}. Total ${dinero0(impPedido(p))}. Gracias.`);
+      if (!S.entregas.some(e => e.cliente === p.cliente)) S.entregas.push({cliente:p.cliente, det:det+' · '+p.credito, lin:{...p.lin}, cobro:0, estado:'', hecho:false});
+      actualizarBadges(); toast(`Pedido de <b>${p.cliente}</b> agendado. Ya aparece en la ruta del chofer.`);
+      renderPedidos();
+    });
+    $('canc-ped').addEventListener('click', () => { p.estado = 'Cancelado'; p.lin = {}; actualizarBadges(); renderPedidos(); });
+  }
+}
+function responder(p, txt){ p.chat.push({sys:true, t:txt, h:hora()}); renderPedidos(); }
+$('enviar-resp').addEventListener('click', () => { const v = $('resp').value.trim(); if (!v) return; responder(S.pedidos.find(x=>x.id===S.pedSel), v); $('resp').value=''; });
+$('resp').addEventListener('keydown', e => { if (e.key==='Enter') $('enviar-resp').click(); });
+
+/* ================= ENTREGAS ================= */
+function renderEntregas(){
+  const sr = $('sinred'); sr.classList.toggle('ok', !S.sinSenal); $('red').checked = S.sinSenal;
+  $('estado-red').innerHTML = S.sinSenal ? `Sin señal · <b>${S.porSubir} operaciones por subir</b>` : `Con señal · <b>todo sincronizado</b>`;
+  const C = $('ent-cuerpo');
+  const idx = S.entregas.findIndex(e => !e.hecho), act = S.entregas[idx];
+  if (act && !S.entLin){ S.entLin = {}; for (const k in act.lin) S.entLin[k] = act.lin[k]; S.firmado = false; }
+  const porCobrar = S.entregas.filter(e=>!e.hecho).reduce((a,e)=>a+e.cobro,0);
+  C.innerHTML = S.entregas.map((e,i) => i===idx ? `<div class="entrega actual"><div class="n">${e.cliente}<small>${e.det}</small></div><span class="pill pend">En curso</span></div>
+    <div style="padding:10px 0 0">
+      ${Object.keys(act.lin).map(k => `<div class="linea-ent"><span>${NOM[k]}<br><small style="color:var(--tinta-2)">pedido: ${act.lin[k]} cajas</small></span><div class="cont"><button class="m" data-k="${k}" data-d="-1" aria-label="Menos">−</button><output>${S.entLin[k]} / ${act.lin[k]}</output><button data-k="${k}" data-d="1" aria-label="Más">+</button></div></div>`).join('')}
+      ${rechazadas(act) ? `<div style="font-size:12px;color:var(--alerta);font-weight:600">${rechazadas(act)} cajas rechazadas regresan al almacén y quedan como merma en ruta.</div>` : ''}
+      <div class="firma" id="firma"><canvas id="firma-c" width="330" height="70"></canvas><span id="firma-s">${S.firmado?'':'Firma del cliente: dibuja aquí con el dedo o el mouse'}</span></div>
+      <button class="btn p w" style="margin-top:10px" id="conf-ent">${act.cobro?`Confirmar y cobrar ${dinero0(act.cobro)}`:'Confirmar entrega'}</button>
+    </div>` : `<div class="entrega"><div class="n">${e.cliente}<small>${e.det}</small></div><span class="pill ${e.hecho?'ok':''}">${e.hecho?e.estado:'Pendiente'}</span></div>`).join('')
+  + `<div class="resumen"><div><small>Efectivo en camión</small><div class="kg" style="font-size:22px">${dinero0(S.efectivo)}</div></div><div style="text-align:right"><small>Por cobrar hoy</small><div class="kg" style="font-size:22px">${dinero0(porCobrar)}</div></div></div>`
+  + (!act ? `<button class="btn h w" style="margin-top:12px" id="cerrar-ruta" ${S.rutaCerrada?'disabled':''}>${S.rutaCerrada?'Ruta cerrada · entregado en patio':'Cerrar ruta y entregar efectivo'}</button>` : '');
+  C.querySelectorAll('.linea-ent button').forEach(b => b.addEventListener('click', () => { const k=b.dataset.k; S.entLin[k] = Math.min(act.lin[k], Math.max(0, S.entLin[k]+Number(b.dataset.d))); renderEntregas(); }));
+  if (act){ initFirma(); $('conf-ent').addEventListener('click', () => {
+    if (!S.firmado) return toast('Falta la firma del cliente');
+    const rech = rechazadas(act);
+    for (const k in act.lin){ S.inv.camion[k] = Math.max(0, S.inv.camion[k] - S.entLin[k]*10); }
+    if (rech) S.merma.p += rech*10;
+    S.ventas.push({punto:'camion', cajero:'Beto (ruta)', metodo:act.cobro?'Efectivo':'Crédito', total:CAL.reduce((a,k)=>a+(S.entLin[k]||0)*10*S.precios.mayoreo[k],0), lin:CAL.filter(k=>S.entLin[k]).map(k=>({k, kg:S.entLin[k]*10, p:S.precios.mayoreo[k]}))});
+    act.hecho = true; act.estado = (act.cobro?'Cobrado ':'Entregado ') + hora(); S.efectivo += act.cobro;
+    if (S.sinSenal) S.porSubir++;
+    toast(`Entrega a <b>${act.cliente}</b> confirmada${act.cobro?', cobrados '+dinero0(act.cobro):''}${S.sinSenal?'. Guardada en el celular; se subirá cuando haya señal.':'. Ya está en el sistema.'}`);
+    S.entLin = null; renderEntregas();
+  }); }
+  const cr = $('cerrar-ruta'); if (cr && !S.rutaCerrada) cr.addEventListener('click', () => { S.rutaCerrada = true; toast(`Ruta cerrada: <b>${dinero0(S.efectivo)}</b> en efectivo entregados en patio. Si el corte del chofer no cuadra, se sabe en qué parada.`); renderEntregas(); });
+}
+const rechazadas = act => Object.keys(act.lin).reduce((a,k)=>a+(act.lin[k]-S.entLin[k]),0);
+$('red').addEventListener('change', e => {
+  S.sinSenal = e.target.checked;
+  if (!S.sinSenal && S.porSubir){ const n = S.porSubir; toast(`Señal recuperada: subiendo <b>${n} operaciones</b>…`); setTimeout(()=>{ S.porSubir = 0; renderEntregas(); toast('Sincronizado. Las entregas ya se ven en la oficina.'); }, 1200); }
+  renderEntregas();
+});
+function initFirma(){
+  const c = $('firma-c'), ctx = c.getContext && c.getContext('2d'); if (!ctx) return; let dib = false;
+  ctx.lineWidth = 2; ctx.strokeStyle = '#1F3A1C'; ctx.lineCap = 'round';
+  const pos = e => { const r = c.getBoundingClientRect(); const p = e.touches ? e.touches[0] : e; return [(p.clientX-r.left)*c.width/r.width, (p.clientY-r.top)*c.height/r.height]; };
+  const ini = e => { dib = true; ctx.beginPath(); ctx.moveTo(...pos(e)); S.firmado = true; $('firma-s').textContent=''; e.preventDefault(); };
+  const mov = e => { if (!dib) return; ctx.lineTo(...pos(e)); ctx.stroke(); e.preventDefault(); };
+  const fin = () => dib = false;
+  c.addEventListener('mousedown', ini); c.addEventListener('mousemove', mov); window.addEventListener('mouseup', fin);
+  c.addEventListener('touchstart', ini, {passive:false}); c.addEventListener('touchmove', mov, {passive:false}); c.addEventListener('touchend', fin);
+}
+
+/* ================= SUCURSALES ================= */
+function renderSucursales(){
+  const filas = ['bodega','mercado','reforma','tlacolula','camion'];
+  $('inv').innerHTML = filas.map(p => { const i = S.inv[p], t = CAL.reduce((a,k)=>a+i[k],0);
+    const al = p==='camion' ? `<span class="pill pend">${S.entregas.filter(e=>!e.hecho).length} entregas pendientes</span>` : (p!=='bodega' && (i.e<100||i.p<100)) ? `<span class="pill mal">${i.e<100?'Extra':'Primera'} por agotarse</span>` : '';
+    return `<tr><td>${p==='bodega'?'<b>':''}${PUNTOS[p]}${p==='bodega'?'</b>':''}</td>${CAL.map(k=>`<td class="num">${kgf(Math.round(i[k]))}</td>`).join('')}<td class="num"><b>${kgf(Math.round(t))}</b></td><td>${al}</td></tr>`; }).join('')
+  + `<tr><td>Merma acumulada</td>${CAL.map(k=>`<td class="num">${kgf(S.merma[k])}</td>`).join('')}<td class="num" style="color:var(--rojo)"><b>${kgf(CAL.reduce((a,k)=>a+S.merma[k],0))}</b></td><td><span class="pill">${(CAL.reduce((a,k)=>a+S.merma[k],0)/200).toFixed(1)}% de lo recibido</span></td></tr>`;
+  $('traspasos').innerHTML = S.traspasos.slice().reverse().map((t,i) => { const idx = S.traspasos.length-1-i; return `<tr><td>${PUNTOS[t.dest]}</td><td>${t.cajas} ${NOM[t.k].replace('Hass ','')}</td><td>${t.estado==='En camino'?`<span class="pill pend">En camino</span> <button class="btn s chico" data-r="${idx}">Recibir</button>`:`<span class="pill ok">${t.estado}</span>`}</td></tr>`; }).join('');
+  $('traspasos').querySelectorAll('[data-r]').forEach(b => b.addEventListener('click', () => { const t = S.traspasos[Number(b.dataset.r)]; S.inv[t.dest][t.k] += t.cajas*10; t.estado = 'Recibido '+hora(); toast(`${PUNTOS[t.dest]} recibió ${t.cajas} cajas de ${NOM[t.k]}`); renderSucursales(); }));
+  const vp = {}; for (const p of ['mercado','reforma','tlacolula','camion']) vp[p] = S.base[p] + S.ventas.filter(v=>v.punto===p).reduce((a,v)=>a+v.total,0);
+  const max = Math.max(...Object.values(vp));
+  $('ventas-punto').innerHTML = Object.keys(vp).map(p => `<div class="suc-bar"><span>${p==='camion'?'Rutas (mayoreo)':PUNTOS[p]}</span><div class="b"><i style="width:${vp[p]/max*100}%"></i></div><b style="text-align:right">${dinero0(vp[p])}</b></div>`).join('');
+}
+$('t-enviar').addEventListener('click', () => {
+  const d = $('t-dest').value, k = $('t-cal').value, n = Number($('t-cajas').value)||0;
+  if (n<=0) return toast('Indica cuántas cajas');
+  if (S.inv.bodega[k] < n*10) return toast(`Bodega solo tiene ${kgf(Math.round(S.inv.bodega[k]))} kg de ${NOM[k]}`);
+  S.inv.bodega[k] -= n*10; S.traspasos.push({dest:d, k, cajas:n, estado:'En camino'});
+  toast(`Traspaso enviado: ${n} cajas de <b>${NOM[k]}</b> a ${PUNTOS[d]}. Sale de bodega ya; entra a la sucursal cuando confirmen recibido.`);
+  renderSucursales();
+});
+
+/* ================= REPORTES ================= */
+function renderReportes(){
+  const hoy = Object.values(S.base).reduce((a,b)=>a+b,0) + S.ventas.reduce((a,v)=>a+v.total,0);
+  $('r-hoy').innerHTML = `${dinero0(hoy)}<small>Vendido hoy · todos los puntos</small>`;
+  const invTot = Object.values(S.inv).reduce((a,i)=>a+CAL.reduce((b,k)=>b+i[k],0),0);
+  $('r-inv').innerHTML = `${kgf(Math.round(invTot))} kg<small>En existencia · bodega, sucursales y camiones</small>`;
+  const cajeros = {'Rosa M.':{t:184,ef:28900,tj:12400},'Ana':{t:96,ef:14200,tj:0},'Beto (ruta)':{t:2,ef:4400,tj:0}};
+  for (const v of S.ventas){ const c = cajeros[v.cajero] ||= {t:0,ef:0,tj:0}; c.t++; if (v.metodo==='Efectivo') c.ef += v.total; else if (v.metodo!=='Crédito') c.tj += v.total; }
+  $('corte').innerHTML = Object.entries(cajeros).map(([n,c]) => `<tr><td>${n}</td><td class="num">${c.t}</td><td class="num">${dinero0(c.ef)}</td><td class="num">${dinero0(c.tj)}</td><td class="num"><b>${dinero0(c.ef+c.tj)}</b></td></tr>`).join('');
+  const kgc = {...S.baseKg}; for (const v of S.ventas) for (const l of v.lin) kgc[l.k] += l.kg;
+  const mk = Math.max(...Object.values(kgc));
+  $('kg-calibre').innerHTML = CAL.map(k => `<div class="suc-bar"><span>${NOM[k]}</span><div class="b"><i style="width:${kgc[k]/mk*100}%"></i></div><b style="text-align:right">${kgf(Math.round(kgc[k]))} kg</b></div>`).join('');
+  const mm = Math.max(...CAL.map(k=>S.merma[k]));
+  $('merma').innerHTML = CAL.map(k => `<div class="suc-bar"><span>${NOM[k]}</span><div class="b"><i style="width:${S.merma[k]/mm*100}%;background:var(--alerta)"></i></div><b style="text-align:right">${kgf(S.merma[k])} kg</b></div>`).join('');
+}
+
+/* ================= RENDER GENERAL ================= */
+function renderTodo(){ renderMostrador(); renderPesador(); renderDescarga(); renderPedidos(); renderEntregas(); renderSucursales(); renderReportes(); actualizarBadges(); }
+renderTodo();
+</script>
+</body>
+</html>
