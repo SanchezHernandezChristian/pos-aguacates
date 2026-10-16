@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aguacates del Valle · Demo del sistema</title>
+<title>Aguacates Los Güeros · Demo del sistema</title>
 <style>
   :root{
     --pulpa:#EEF2CF;--pulpa-2:#E2E8B4;--hoja:#1F3A1C;--hoja-2:#2E5227;
@@ -97,7 +97,7 @@
   tr.sel{cursor:pointer}tr.sel:hover{background:var(--pulpa)}tr.sel.on{background:var(--pulpa-2)}
   .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;background:#E7EBD2;color:var(--tinta-2)}
   .pill.ok{background:#DCEBC0;color:var(--hoja)}.pill.pend{background:#F6E3C7;color:var(--hueso-2)}.pill.mal{background:#F2D6D1;color:var(--rojo)}
-  .tarj{background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:16px}
+  .tarj{background:var(--papel);border:1px solid var(--linea);border-radius:10px;padding:16px;overflow-x:auto}
   .tarj h3{font-size:15px;margin-bottom:10px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
   .cifra{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1}
@@ -128,13 +128,6 @@
   .resumen .kg.mal{color:#F5A15C}
   .resumen small{color:#B8B3B6;display:block;font-size:12px}
 
-  .chat{background:#EAE3D6;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:260px;max-height:320px;overflow:auto}
-  .msg{background:#fff;border-radius:10px;padding:8px 12px;max-width:85%;font-size:14px;align-self:flex-start;box-shadow:0 1px 0 rgba(0,0,0,.05)}
-  .msg.audio{display:flex;align-items:center;gap:8px}
-  .msg.audio .onda{height:18px;flex:1;background:repeating-linear-gradient(90deg,#8FBF3C 0 3px,transparent 3px 6px);border-radius:2px;opacity:.7}
-  .msg.trans{font-size:12px;color:#5B6352;background:#F3F0E8}
-  .msg time{display:block;font-size:11px;color:#8A8A8A;margin-top:4px;text-align:right}
-  .msg.sistema{align-self:flex-end;background:#DCEBC0}
   .borrador{border:2px solid var(--maduro);border-radius:10px;padding:14px;background:#fff}
   .borrador .lin{display:grid;grid-template-columns:1fr 70px 90px;gap:8px;padding:6px 0;border-bottom:1px solid #EEF0E4;font-size:14px;align-items:center}
   .borrador input{border:1px solid var(--linea);border-radius:4px;padding:4px 6px;width:100%;text-align:right}
@@ -179,12 +172,13 @@
 <body>
 <div class="app">
   <nav class="rail" aria-label="Módulos del sistema">
-    <div class="marca"><div class="n">Aguacates<br>del Valle</div><div class="s">Demo del sistema · sep 2026</div></div>
+    <div class="marca"><div class="n">Aguacates<br>Los Güeros</div><div class="s">Demo del sistema · oct 2026</div></div>
     <button data-v="mostrador" aria-current="page">Mostrador <small>caja</small></button>
     <button data-v="pesador">Pesador y caja <span class="badge" id="b-ordenes">3</span></button>
     <button data-v="descarga">Descarga de tráiler <small>celular</small></button>
-    <button data-v="pedidos">Pedidos <span class="badge" id="b-pedidos">1</span></button>
+    <button data-v="pedidos">Portal de pedidos <span class="badge" id="b-pedidos">1</span></button>
     <button data-v="entregas">Entregas en ruta <small>chofer</small></button>
+    <button data-v="facturas">Facturación <small>CFDI</small></button>
     <button data-v="sucursales">Sucursales <small>inventario</small></button>
     <button data-v="reportes">Reportes <small>dueño</small></button>
     <div class="pie">Todo lo que hagas aquí se refleja en inventario y reportes.<br><button id="reset">Reiniciar demo</button></div>
@@ -194,7 +188,7 @@
 
     <!-- MOSTRADOR -->
     <section class="vista activa" id="v-mostrador">
-      <div class="cab"><div><h1>Mostrador</h1><p>La venta rápida. El cajero pone el aguacate en la báscula, toca el calibre y cobra. No teclea precios ni multiplica nada.</p></div><div class="quien">Lo usa: <b>cajero</b> · Equipo: tableta + báscula</div></div>
+      <div class="cab"><div><h1>Mostrador</h1><p>La venta rápida. El cajero pone el aguacate en la báscula, toca el calibre y cobra. No teclea precios ni multiplica nada.</p></div><div class="quien">Fases 1 y 2 · Lo usa: <b>cajero</b> · Equipo: tableta + báscula</div></div>
       <div class="pasos">
         <div class="paso"><i>1</i><div><b>Pesa</b><span>El peso entra solo desde la báscula</span></div></div>
         <div class="paso"><i>2</i><div><b>Toca el calibre</b><span>El sistema aplica el precio del día</span></div></div>
@@ -242,7 +236,7 @@
 
     <!-- PESADOR Y CAJA -->
     <section class="vista" id="v-pesador">
-      <div class="cab"><div><h1>Pesador y caja</h1><p>Para las horas pico. Varios trabajadores pesan y arman órdenes; una sola caja cobra. Quien pesa no toca dinero, quien cobra no decide precios.</p></div><div class="quien">Lo usan: <b>pesadores</b> y <b>cajero</b></div></div>
+      <div class="cab"><div><h1>Pesador y caja</h1><p>Para las horas pico. Varios trabajadores pesan y arman órdenes; una sola caja cobra. Quien pesa no toca dinero, quien cobra no decide precios.</p></div><div class="quien">Fase 1 · Lo usan: <b>pesadores</b> y <b>cajero</b></div></div>
       <div class="pasos">
         <div class="paso"><i>1</i><div><b>El pesador arma la orden</b><span>Pesa, toca calibre, guarda con un número</span></div></div>
         <div class="paso"><i>2</i><div><b>El cliente pasa a caja</b><span>Con su número o su nombre</span></div></div>
@@ -275,7 +269,7 @@
 
     <!-- DESCARGA -->
     <section class="vista" id="v-descarga">
-      <div class="cab"><div><h1>Descarga de tráiler</h1><p>Cuando llega mercancía, el encargado cuenta cajas por calibre en el celular mientras bajan. Al confirmar, el inventario de bodega sube solo.</p></div><div class="quien">Lo usa: <b>encargado de bodega</b> · Equipo: celular</div></div>
+      <div class="cab"><div><h1>Descarga de tráiler</h1><p>Cuando llega mercancía, el encargado cuenta cajas por calibre en el celular mientras bajan. Al confirmar, el inventario de bodega sube solo.</p></div><div class="quien">Fase 4 · Lo usa: <b>encargado de bodega</b> · Equipo: celular</div></div>
       <div class="pasos">
         <div class="paso"><i>1</i><div><b>Abre la descarga</b><span>Elige de qué huerta o proveedor viene</span></div></div>
         <div class="paso"><i>2</i><div><b>Cuenta cajas</b><span>Un toque por caja, por calibre</span></div></div>
@@ -302,29 +296,46 @@
       </div>
     </section>
 
-    <!-- PEDIDOS -->
+    <!-- PORTAL DE PEDIDOS -->
     <section class="vista" id="v-pedidos">
-      <div class="cab"><div><h1>Pedidos por WhatsApp</h1><p>Los mensajes de los clientes entran a una bandeja. El sistema propone el pedido; una persona lo revisa y confirma. Nada sale del almacén sin que alguien lo apruebe.</p></div><div class="quien">Lo usa: <b>oficina</b> · Número dedicado de negocio</div></div>
+      <div class="cab"><div><h1>Portal de pedidos</h1><p>Cada cliente de mayoreo tiene un enlace personal, sin contraseña. Pide desde su celular y ve su precio y su saldo. El pedido llega completo a la oficina y una persona lo confirma: nada sale de bodega sin que alguien lo apruebe.</p></div><div class="quien">Fase 7 · Lo usan: <b>clientes</b> y <b>oficina</b></div></div>
       <div class="pasos">
-        <div class="paso"><i>1</i><div><b>Llega el mensaje</b><span>Texto o audio, el cliente se identifica por su número</span></div></div>
-        <div class="paso"><i>2</i><div><b>El sistema propone</b><span>Interpreta "lo de siempre" con el historial</span></div></div>
-        <div class="paso"><i>3</i><div><b>Oficina confirma</b><span>Se agenda a ruta y se avisa al cliente</span></div></div>
+        <div class="paso"><i>1</i><div><b>El cliente abre su enlace</b><span>Lo guarda en su celular; no hay contraseña</span></div></div>
+        <div class="paso"><i>2</i><div><b>Arma o repite su pedido</b><span>Con su precio de mayoreo y su saldo a la vista</span></div></div>
+        <div class="paso"><i>3</i><div><b>Oficina confirma</b><span>Revisa existencias y lo agenda a ruta</span></div></div>
       </div>
-      <div class="tarj" style="margin-bottom:14px">
-        <h3>Bandeja de hoy · toca un renglón para abrirlo</h3>
-        <table><thead><tr><th>Cliente</th><th>Mensaje</th><th>Entrega</th><th class="num">Importe</th><th>Estado</th></tr></thead><tbody id="bandeja"></tbody></table>
-      </div>
-      <div class="grid2">
-        <div class="tarj"><h3 id="chat-t"></h3><div class="chat" id="chat"></div>
-          <div style="display:flex;gap:8px;margin-top:10px"><input id="resp" placeholder="Responder al cliente…" style="flex:1;padding:8px;border:1px solid var(--linea);border-radius:4px"><button class="btn p chico" id="enviar-resp">Enviar</button></div>
+      <div class="grid2" style="align-items:start">
+        <div class="pantalla telefono">
+          <div class="barra"><span>Restaurante La Ceiba</span><span>Crédito <b>15 días</b></span></div>
+          <div class="cuerpo" id="portal"></div>
         </div>
-        <div class="borrador" id="borrador"></div>
+        <div>
+          <div class="tarj"><h3>Pedidos recibidos · toca uno para revisarlo</h3>
+            <table><thead><tr><th>Cliente</th><th>Pedido</th><th>Entrega</th><th class="num">Importe</th><th>Estado</th></tr></thead><tbody id="bandeja"></tbody></table>
+          </div>
+          <div class="borrador" id="borrador" style="margin-top:14px"></div>
+        </div>
       </div>
+    </section>
+
+    <!-- FACTURACIÓN -->
+    <section class="vista" id="v-facturas">
+      <div class="cab"><div><h1>Facturación</h1><p>Las ventas a clientes empresa se facturan desde el mismo sistema. Los datos fiscales ya están en el cliente y el timbrado lo hace un PAC autorizado por el SAT; nadie arma la factura a mano.</p></div><div class="quien">Fase 3 · Lo usa: <b>oficina</b></div></div>
+      <div class="pasos">
+        <div class="paso"><i>1</i><div><b>Elige la venta</b><span>Entregas, pedidos o tickets sin factura</span></div></div>
+        <div class="paso"><i>2</i><div><b>Revisa</b><span>RFC, régimen y uso del CFDI ya vienen llenos</span></div></div>
+        <div class="paso"><i>3</i><div><b>Timbra</b><span>El cliente la descarga en su portal</span></div></div>
+      </div>
+      <div class="grid2" style="align-items:start">
+        <div class="tarj"><h3>Por facturar · toca una para prepararla</h3><table><thead><tr><th>Origen</th><th>Cliente</th><th class="num">Importe</th></tr></thead><tbody id="porfacturar"></tbody></table></div>
+        <div class="borrador" id="factura"></div>
+      </div>
+      <div class="tarj" style="margin-top:14px"><h3>Facturas emitidas</h3><table><thead><tr><th>Folio</th><th>Cliente</th><th class="num">Total</th><th>Folio fiscal</th><th>Estado</th><th></th></tr></thead><tbody id="emitidas"></tbody></table></div>
     </section>
 
     <!-- ENTREGAS -->
     <section class="vista" id="v-entregas">
-      <div class="cab"><div><h1>Entregas en ruta</h1><p>La app del chofer. Descarga su ruta con wifi en el patio, trabaja todo el día sin señal, y sube todo cuando la recupera. Cierra la ruta con el dinero que trae.</p></div><div class="quien">Lo usa: <b>chofer</b> · App instalada en el celular</div></div>
+      <div class="cab"><div><h1>Entregas en ruta</h1><p>La app del chofer. Descarga su ruta con wifi en el patio, trabaja todo el día sin señal, y sube todo cuando la recupera. Cierra la ruta con el dinero que trae.</p></div><div class="quien">Fase 5 · Lo usa: <b>chofer</b> · App instalada en el celular</div></div>
       <div class="pasos">
         <div class="paso"><i>1</i><div><b>Sale con su ruta</b><span>Paradas en orden, qué lleva cada una</span></div></div>
         <div class="paso"><i>2</i><div><b>Entrega y ajusta</b><span>Cantidad real, firma, cobro si es contra entrega</span></div></div>
@@ -339,7 +350,7 @@
 
     <!-- SUCURSALES -->
     <section class="vista" id="v-sucursales">
-      <div class="cab"><div><h1>Sucursales e inventario</h1><p>Cada punto tiene su propio inventario y su propia caja. Los traspasos desde la bodega quedan registrados, y el dueño ve todo junto o cada lugar por separado.</p></div><div class="quien">Lo ve: <b>dueño</b> y <b>encargados</b></div></div>
+      <div class="cab"><div><h1>Sucursales e inventario</h1><p>Cada punto tiene su propio inventario y su propia caja. Los traspasos desde la bodega quedan registrados, y el dueño ve todo junto o cada lugar por separado.</p></div><div class="quien">Fase 1 · Lo ven: <b>dueño</b> y <b>encargados</b></div></div>
       <div class="pasos">
         <div class="paso"><i>1</i><div><b>Bodega envía</b><span>Traspaso de cajas a la sucursal</span></div></div>
         <div class="paso"><i>2</i><div><b>Sucursal recibe</b><span>Confirma desde su tableta lo que llegó</span></div></div>
@@ -365,12 +376,13 @@
 
     <!-- REPORTES -->
     <section class="vista" id="v-reportes">
-      <div class="cab"><div><h1>Reportes del dueño</h1><p>Lo que tu amigo ve desde su celular sin preguntarle a nadie. Todo sale de las mismas ventas, descargas y entregas que ya registró la gente.</p></div><div class="quien">Lo ve: <b>dueño</b> · desde el celular</div></div>
+      <div class="cab"><div><h1>Reportes del dueño</h1><p>Lo que el dueño ve desde su celular sin preguntarle a nadie. Todo sale de las mismas ventas, descargas y entregas que ya registró la gente.</p></div><div class="quien">Fase 6 · Lo ve: <b>dueño</b> · desde el celular</div></div>
       <div class="grid3">
         <div class="tarj"><div class="cifra" id="r-hoy">$0<small>Vendido hoy · todos los puntos</small></div></div>
         <div class="tarj"><div class="cifra" id="r-inv">0<small>Kilos en existencia · todos los puntos</small></div></div>
-        <div class="tarj"><div class="cifra mal" id="r-cxc">$38,900<small>Por cobrar vencido · 4 clientes</small></div></div>
+        <div class="tarj"><div class="cifra mal" id="r-cxc">$0<small>Por cobrar vencido</small></div></div>
       </div>
+      <div class="tarj" style="margin-top:14px"><h3>Cuentas por cobrar</h3><table><thead><tr><th>Cliente</th><th class="num">Saldo</th><th>Vencimiento</th></tr></thead><tbody id="cxc"></tbody></table></div>
       <div class="grid2" style="margin-top:14px">
         <div class="tarj"><h3>Corte de caja por cajero · hoy</h3><table><thead><tr><th>Cajero</th><th class="num">Tickets</th><th class="num">Efectivo</th><th class="num">Tarjeta / transf.</th><th class="num">Total</th></tr></thead><tbody id="corte"></tbody></table></div>
         <div class="tarj"><h3>Kilos vendidos hoy por calibre</h3><div id="kg-calibre"></div></div>
@@ -409,6 +421,11 @@
 const NOM = {e:'Hass Extra', p:'Hass Primera', s:'Hass Segunda', c:'Hass Cuarta'};
 const CAL = ['e','p','s','c'];
 const PUNTOS = {bodega:'Bodega central', mercado:'Mercado central', reforma:'Local Reforma', tlacolula:'Local Tlacolula', camion:'Camiones en ruta'};
+const FISCAL = {
+  'Restaurante La Ceiba':{rfc:'RCE190707QW1', razon:'RESTAURANTE LA CEIBA SA DE CV', cp:'68020'},
+  'Súper El Roble':{rfc:'SRO150301KZ8', razon:'SUPER EL ROBLE SA DE CV', cp:'68050'},
+  'Hotel Mirador':{rfc:'HMO180512AB3', razon:'HOTEL MIRADOR DE OAXACA SA DE CV', cp:'68000'}
+};
 let S;
 function estadoInicial(){
   return {
@@ -431,17 +448,27 @@ function estadoInicial(){
       {num:116, origen:'Huerta San Isidro', contado:2950, rem:3000}
     ],
     pedidos:[
-      {id:0, cliente:'Restaurante La Ceiba', tel:'951 234 8871', msg:'Lo de siempre + 5 extra', entrega:'jue 10', estado:'Por revisar', lin:{e:15,p:20}, credito:'Crédito 15 días', hora:'antes de 10:00',
-        chat:[{t:'Buen día, mándame lo de siempre para el jueves y 5 cajas más de la extra',h:'8:14'},{audio:true,tr:'ah y que vaya antes de las diez porque abrimos temprano'},{sys:true,t:'Recibido. Te confirmamos en un momento.',h:'8:14'}],
-        nota:'"Lo de siempre" se tomó de los últimos 4 pedidos (10 Extra + 20 Primera).'},
-      {id:1, cliente:'Súper El Roble', tel:'951 118 2204', msg:'30 cajas primera', entrega:'mié 9', estado:'Agendado', lin:{p:30}, credito:'Crédito 30 días', hora:'',
-        chat:[{t:'30 de primera para mañana porfa',h:'7:50'},{sys:true,t:'Confirmado: 30 cajas Hass Primera, entrega miércoles 9. Gracias.',h:'7:58'}], nota:''},
-      {id:2, cliente:'Cocina Doña Mary', tel:'951 402 7719', msg:'¿a cómo la extra?', entrega:'', estado:'Solo pregunta', lin:{}, credito:'Contado', hora:'',
-        chat:[{t:'Hola, ¿a cómo la extra hoy?',h:'8:31'}], nota:'No hay pedido todavía. Responde con el precio y el sistema espera la respuesta.'},
-      {id:3, cliente:'Hotel Mirador', tel:'951 517 9930', msg:'8 cajas extra, factura', entrega:'mié 9', estado:'Agendado', lin:{e:8}, credito:'Contra entrega, con factura', hora:'',
-        chat:[{t:'8 cajas de la extra para mañana, con factura por favor',h:'7:20'},{sys:true,t:'Confirmado: 8 cajas Hass Extra, entrega miércoles 9, con factura. Se cobra contra entrega $4,400.',h:'7:31'}], nota:''}
+      {id:0, cliente:'Hotel Mirador', origen:'Portal', entrega:'mié 9', estado:'Agendado', lin:{e:8}, credito:'Contra entrega, con factura', nota:''},
+      {id:1, cliente:'Súper El Roble', origen:'Portal', entrega:'mié 9', estado:'Agendado', lin:{p:30}, credito:'Crédito 30 días', nota:''},
+      {id:2, cliente:'Cocina Doña Mary', origen:'Capturado por oficina', entrega:'mié 9', estado:'Agendado', lin:{s:4}, credito:'Contado contra entrega', nota:'Pidió por WhatsApp; lo capturó Carmen en el sistema.'},
+      {id:3, cliente:'Restaurante La Ceiba', origen:'Portal', entrega:'jue 10', estado:'Por revisar', lin:{e:15,p:20}, credito:'Crédito 15 días', nota:'Antes de las 10:00, abrimos temprano.'}
     ],
-    pedSel:0,
+    pedSel:3, pnum:4,
+    portal:{lin:{e:0,p:0,s:0,c:0}, entrega:'vie 11'},
+    ultimo:{e:15,p:20},
+    cxc:[
+      {cliente:'Restaurante La Ceiba', saldo:12600, dias:3},
+      {cliente:'Fonda Las Palmas', saldo:7200, dias:21},
+      {cliente:'Abarrotes Lupita', saldo:9800, dias:9},
+      {cliente:'Comedor Industrial Oaxaca', saldo:9300, dias:5},
+      {cliente:'Súper El Roble', saldo:18300, dias:-12}
+    ],
+    porFacturar:[{origen:'Entrega ruta 2', cliente:'Hotel Mirador', lin:{e:8}, pago:'Efectivo'}],
+    facSel:0, fnum:1042,
+    facturas:[
+      {folio:'A-1041', cliente:'Restaurante La Ceiba', total:12600, uuid:'7C1E5B2A-9D4F-4E1B-8A63-2F0C9B7D1E45', estado:'Vigente'},
+      {folio:'A-1040', cliente:'Súper El Roble', total:13500, uuid:'B04D9E21-3C7A-4F58-9E12-6A8D3C5F7B90', estado:'Vigente'}
+    ],
     entregas:[
       {cliente:'Súper El Roble', det:'30 cajas Primera · a crédito', lin:{p:30}, cobro:0, estado:'Entregado 8:40', hecho:true},
       {cliente:'Hotel Mirador', det:'8 cajas Extra · cobrar $4,400', lin:{e:8}, cobro:4400, estado:'Cobrado 9:15', hecho:true},
@@ -472,7 +499,7 @@ function actualizarBadges(){
   $('b-pedidos').textContent = pr; $('b-pedidos').style.display = pr ? '' : 'none';
 }
 function imprimir(tnum, lin, total, metodo, cajero){
-  let s = `   AGUACATES DEL VALLE\n   Mercado central · Caja 1\n   Ticket ${tnum}  ${hora()}\n   Cajero: ${cajero}\n   ------------------------\n`;
+  let s = `   AGUACATES LOS GÜEROS\n   Mercado central · Caja 1\n   Ticket ${tnum}  ${hora()}\n   Cajero: ${cajero}\n   ------------------------\n`;
   for (const l of lin) s += `   ${NOM[l.k].padEnd(13)} ${l.kg.toFixed(3)} kg\n      ${(l.kg*l.p).toFixed(2).padStart(20)}\n`;
   s += `   ------------------------\n   TOTAL ${dinero(total).padStart(18)}\n   ${metodo}\n   Gracias por su compra`;
   toast(s, true);
@@ -574,43 +601,90 @@ $('conf-desc').addEventListener('click', () => {
   S.dnum++; S.desc = {e:0,p:0,s:0,m:0}; renderDescarga();
 });
 
-/* ================= PEDIDOS ================= */
-const pillDe = e => ({'Por revisar':'pend','Agendado':'ok','Solo pregunta':'','Cancelado':'mal'})[e] || '';
-const impPedido = p => CAL.reduce((a,k)=>a+(p.lin[k]||0)*10*S.precios.mayoreo[k],0);
-function renderPedidos(){
-  $('bandeja').innerHTML = S.pedidos.map(p => `<tr class="sel${p.id===S.pedSel?' on':''}" data-id="${p.id}"><td>${p.cliente}</td><td>${p.msg}</td><td>${p.entrega||'—'}</td><td class="num">${impPedido(p)?dinero0(impPedido(p)):'—'}</td><td><span class="pill ${pillDe(p.estado)}">${p.estado}</span></td></tr>`).join('');
-  $('bandeja').querySelectorAll('tr').forEach(r => r.addEventListener('click', () => { S.pedSel = Number(r.dataset.id); renderPedidos(); }));
-  const p = S.pedidos.find(x => x.id === S.pedSel);
-  $('chat-t').textContent = `${p.cliente} · ${p.tel}`;
-  const ch = $('chat');
-  ch.innerHTML = p.chat.map(m => m.audio ? `<div class="msg audio"><span>▶</span><span class="onda"></span><span style="font-size:12px;color:#8A8A8A">0:21</span></div><div class="msg trans">Transcripción: "${m.tr}"</div>` : `<div class="msg${m.sys?' sistema':''}">${m.t}<time>${m.h}</time></div>`).join('');
-  ch.scrollTop = ch.scrollHeight;
-  const B = $('borrador'), tieneLin = Object.keys(p.lin).length;
-  if (!tieneLin){ B.innerHTML = `<h3 style="font-size:15px;margin-bottom:10px">Sin pedido que proponer</h3><div class="nota">${p.nota}</div><button class="btn s" id="precios-btn">Enviar precios de hoy</button>`; $('precios-btn').addEventListener('click', () => responder(p, `Hoy: Extra ${dinero0(S.precios.mayoreo.e)}/kg, Primera ${dinero0(S.precios.mayoreo.p)}/kg, Segunda ${dinero0(S.precios.mayoreo.s)}/kg por caja de 10 kg.`)); return; }
-  const ag = p.estado === 'Agendado';
-  B.innerHTML = `<h3 style="font-size:15px;margin-bottom:10px">${ag?'Pedido agendado':'Pedido propuesto · revisar y confirmar'}</h3>
-    <div class="lin" style="font-size:12px;color:var(--tinta-2)"><span>Producto</span><span style="text-align:right">Cajas</span><span style="text-align:right">Importe</span></div>
-    ${CAL.filter(k => p.lin[k] !== undefined).map(k => `<div class="lin"><span>${NOM[k]}</span><input type="number" min="0" value="${p.lin[k]}" data-k="${k}" ${ag?'disabled':''}><span style="text-align:right" id="imp-${k}">${dinero0(p.lin[k]*10*S.precios.mayoreo[k])}</span></div>`).join('')}
-    <div class="tot"><span>Total</span><span id="imp-tot">${dinero0(impPedido(p))}</span></div>
-    <div class="nota">Lista de precios: mayoreo · Entrega: ${p.entrega||'por definir'}${p.hora?', '+p.hora:''} · ${p.credito}</div>
-    ${p.nota?`<div class="nota" style="color:var(--hueso-2)">${p.nota}</div>`:''}
-    <div style="display:flex;gap:8px;margin-top:10px">${ag?`<span class="pill ok">Ya está en la ruta del ${p.entrega}</span>`:`<button class="btn p" style="flex:1" id="conf-ped">Confirmar y agendar</button><button class="btn s" id="canc-ped">Cancelar pedido</button>`}</div>`;
-  B.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => { p.lin[i.dataset.k] = Number(i.value)||0; $('imp-'+i.dataset.k).textContent = dinero0(p.lin[i.dataset.k]*10*S.precios.mayoreo[i.dataset.k]); $('imp-tot').textContent = dinero0(impPedido(p)); }));
-  if (!ag){
-    $('conf-ped').addEventListener('click', () => {
-      p.estado = 'Agendado';
-      const det = CAL.filter(k=>p.lin[k]).map(k=>`${p.lin[k]} ${NOM[k].replace('Hass ','')}`).join(' + ');
-      responder(p, `Confirmado: ${det}, entrega ${p.entrega}${p.hora?' '+p.hora:''}. Total ${dinero0(impPedido(p))}. Gracias.`);
-      if (!S.entregas.some(e => e.cliente === p.cliente)) S.entregas.push({cliente:p.cliente, det:det+' · '+p.credito, lin:{...p.lin}, cobro:0, estado:'', hecho:false});
-      actualizarBadges(); toast(`Pedido de <b>${p.cliente}</b> agendado. Ya aparece en la ruta del chofer.`);
-      renderPedidos();
-    });
-    $('canc-ped').addEventListener('click', () => { p.estado = 'Cancelado'; p.lin = {}; actualizarBadges(); renderPedidos(); });
-  }
+/* ================= PORTAL DE PEDIDOS ================= */
+const pillDe = e => ({'Por revisar':'pend','Agendado':'ok','Cancelado':'mal'})[e] || '';
+const impLin = lin => CAL.reduce((a,k)=>a+(lin[k]||0)*10*S.precios.mayoreo[k],0);
+const descLin = lin => CAL.filter(k=>lin[k]).map(k=>`${lin[k]} ${NOM[k].replace('Hass ','')}`).join(' + ');
+const soloConCajas = lin => Object.fromEntries(CAL.filter(k=>lin[k]).map(k=>[k, lin[k]]));
+function renderPedidos(){ renderPortal(); renderBandeja(); }
+function renderPortal(){
+  const P = S.portal, cajas = CAL.reduce((a,k)=>a+P.lin[k],0);
+  const cuenta = S.cxc.find(c => c.cliente === 'Restaurante La Ceiba');
+  const mios = S.pedidos.filter(p => p.cliente === 'Restaurante La Ceiba').reverse();
+  const facts = S.facturas.filter(f => f.cliente === 'Restaurante La Ceiba' && f.estado === 'Vigente');
+  $('portal').innerHTML = `
+    <div class="resumen" style="margin:0 0 12px"><div><small>Tu saldo</small><div class="kg" style="font-size:22px">${dinero0(cuenta.saldo)}</div></div><div style="text-align:right"><small>${cuenta.dias>0?'Vencido hace '+cuenta.dias+' días':'Al corriente'}</small></div></div>
+    <button class="btn s w" id="repetir">Repetir mi último pedido · ${descLin(S.ultimo)}</button>
+    <div style="margin-top:6px">${CAL.map(k => `<div class="linea-ent"><span>${NOM[k]}<br><small style="color:var(--tinta-2)">${dinero(S.precios.mayoreo[k])}/kg · caja de 10 kg</small></span><div class="cont"><button class="m" data-k="${k}" data-d="-1" aria-label="Menos">−</button><output>${P.lin[k]}</output><button data-k="${k}" data-d="1" aria-label="Más">+</button></div></div>`).join('')}</div>
+    <div class="form" style="grid-template-columns:1fr;margin-top:8px"><div><label for="p-entrega">Entrega</label><select id="p-entrega">${['jue 10','vie 11','sáb 12'].map(d=>`<option${d===P.entrega?' selected':''}>${d}</option>`).join('')}</select></div></div>
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:17px;padding:12px 0">${cajas} cajas<span>${dinero0(impLin(P.lin))}</span></div>
+    <button class="btn p w" id="p-enviar" ${cajas?'':'disabled'}>Enviar pedido</button>
+    <h3 style="font-size:14px;margin:18px 0 2px">Mis pedidos</h3>
+    ${mios.map(p => `<div class="entrega"><div class="n">${descLin(p.lin)||'Sin producto'}<small>Entrega ${p.entrega}</small></div><span class="pill ${pillDe(p.estado)}">${p.estado==='Por revisar'?'Por confirmar':p.estado==='Agendado'?'Confirmado':p.estado}</span></div>`).join('')}
+    <h3 style="font-size:14px;margin:18px 0 2px">Mis facturas</h3>
+    ${facts.map(f => `<div class="entrega"><div class="n">${f.folio}<small>${dinero(f.total)}</small></div><button class="btn s chico" data-f="${f.folio}">PDF y XML</button></div>`).join('') || '<div class="nota" style="font-size:13px;color:var(--tinta-2)">Sin facturas vigentes.</div>'}`;
+  $('portal').querySelectorAll('.cont button').forEach(b => b.addEventListener('click', () => { const k = b.dataset.k; P.lin[k] = Math.max(0, P.lin[k] + Number(b.dataset.d)); renderPortal(); }));
+  $('repetir').addEventListener('click', () => { P.lin = {e:0,p:0,s:0,c:0, ...S.ultimo}; renderPortal(); });
+  $('p-entrega').addEventListener('change', e => P.entrega = e.target.value);
+  $('p-enviar').addEventListener('click', () => {
+    const lin = soloConCajas(P.lin);
+    S.pedidos.push({id:S.pnum, cliente:'Restaurante La Ceiba', origen:'Portal', entrega:P.entrega, estado:'Por revisar', lin, credito:'Crédito 15 días', nota:''});
+    S.pedSel = S.pnum++; S.ultimo = lin; P.lin = {e:0,p:0,s:0,c:0};
+    actualizarBadges(); renderPedidos();
+    toast('Pedido enviado. Llegó a la oficina <b>por confirmar</b>; el cliente ve el estado aquí mismo.');
+  });
+  $('portal').querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => toast(`Se descargan el PDF y el XML de la factura <b>${b.dataset.f}</b>`)));
 }
-function responder(p, txt){ p.chat.push({sys:true, t:txt, h:hora()}); renderPedidos(); }
-$('enviar-resp').addEventListener('click', () => { const v = $('resp').value.trim(); if (!v) return; responder(S.pedidos.find(x=>x.id===S.pedSel), v); $('resp').value=''; });
-$('resp').addEventListener('keydown', e => { if (e.key==='Enter') $('enviar-resp').click(); });
+function renderBandeja(){
+  $('bandeja').innerHTML = S.pedidos.slice().reverse().map(p => `<tr class="sel${p.id===S.pedSel?' on':''}" data-id="${p.id}"><td>${p.cliente}<br><small style="color:var(--tinta-2)">${p.origen}</small></td><td>${descLin(p.lin)||'—'}</td><td>${p.entrega}</td><td class="num">${impLin(p.lin)?dinero0(impLin(p.lin)):'—'}</td><td><span class="pill ${pillDe(p.estado)}">${p.estado}</span></td></tr>`).join('');
+  $('bandeja').querySelectorAll('tr').forEach(r => r.addEventListener('click', () => { S.pedSel = Number(r.dataset.id); renderBandeja(); }));
+  const p = S.pedidos.find(x => x.id === S.pedSel), B = $('borrador');
+  const abierto = p.estado === 'Por revisar';
+  B.innerHTML = `<h3 style="font-size:15px;margin-bottom:10px">${abierto?'Por revisar':'Pedido '+p.estado.toLowerCase()} · ${p.cliente}</h3>
+    <div class="lin" style="font-size:12px;color:var(--tinta-2)"><span>Producto</span><span style="text-align:right">Cajas</span><span style="text-align:right">En bodega</span></div>
+    ${CAL.filter(k => p.lin[k] !== undefined).map(k => `<div class="lin"><span>${NOM[k]}</span><input type="number" min="0" value="${p.lin[k]}" data-k="${k}" ${abierto?'':'disabled'}><span style="text-align:right${p.lin[k]*10>S.inv.bodega[k]?';color:var(--rojo);font-weight:700':''}">${kgf(Math.round(S.inv.bodega[k]))} kg</span></div>`).join('')}
+    <div class="tot"><span>Total</span><span id="imp-tot">${dinero0(impLin(p.lin))}</span></div>
+    <div class="nota">Precio de mayoreo · Entrega ${p.entrega} · ${p.credito}</div>
+    ${p.nota?`<div class="nota" style="color:var(--hueso-2)">Nota: ${p.nota}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:10px">${abierto?`<button class="btn p" style="flex:1" id="conf-ped">Confirmar y agendar</button><button class="btn s" id="canc-ped">Cancelar pedido</button>`:p.estado==='Agendado'?`<span class="pill ok">Ya está en la ruta del ${p.entrega}</span>`:''}</div>`;
+  B.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => { p.lin[i.dataset.k] = Number(i.value)||0; $('imp-tot').textContent = dinero0(impLin(p.lin)); }));
+  if (!abierto) return;
+  $('conf-ped').addEventListener('click', () => {
+    p.estado = 'Agendado'; p.lin = soloConCajas(p.lin);
+    if (!S.entregas.some(e => e.cliente === p.cliente && !e.hecho)) S.entregas.push({cliente:p.cliente, det:descLin(p.lin)+' · '+p.credito, lin:{...p.lin}, cobro:0, estado:'', hecho:false});
+    actualizarBadges(); renderPedidos();
+    toast(`Pedido de <b>${p.cliente}</b> agendado. Ya aparece en la ruta del chofer y el cliente lo ve confirmado en su portal.`);
+  });
+  $('canc-ped').addEventListener('click', () => { p.estado = 'Cancelado'; actualizarBadges(); renderPedidos(); });
+}
+
+/* ================= FACTURACIÓN ================= */
+const nuevoUUID = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random()*16|0).toString(16))).toUpperCase();
+function renderFacturas(){
+  $('porfacturar').innerHTML = S.porFacturar.length ? S.porFacturar.map((v,i) => `<tr class="sel${i===S.facSel?' on':''}" data-i="${i}"><td>${v.origen}<br><small style="color:var(--tinta-2)">${descLin(v.lin)}</small></td><td>${v.cliente}</td><td class="num">${dinero0(impLin(v.lin))}</td></tr>`).join('') : '<tr><td colspan="3" style="color:var(--tinta-2)">No hay ventas pendientes de facturar.</td></tr>';
+  $('porfacturar').querySelectorAll('tr[data-i]').forEach(r => r.addEventListener('click', () => { S.facSel = Number(r.dataset.i); renderFacturas(); }));
+  const F = $('factura'), v = S.porFacturar[S.facSel];
+  if (!v) F.innerHTML = '<h3 style="font-size:15px;margin-bottom:10px">Nada por facturar</h3><div class="nota">Confirma una entrega en ruta a un cliente empresa y aparecerá aquí.</div>';
+  else {
+    const d = FISCAL[v.cliente], tot = impLin(v.lin), credito = v.pago === 'Crédito';
+    F.innerHTML = `<h3 style="font-size:15px;margin-bottom:6px">Factura A-${S.fnum}</h3>
+      <div class="nota" style="line-height:1.6;margin-top:0"><b style="color:var(--tinta)">${d.razon}</b><br>RFC ${d.rfc} · Régimen 601 General de Ley Personas Morales · CP ${d.cp}</div>
+      <div class="form" style="grid-template-columns:1fr;margin-bottom:8px"><div><label>Uso del CFDI</label><select><option>G01 Adquisición de mercancías</option><option>G03 Gastos en general</option></select></div><div><label>Método de pago</label><select><option${credito?'':' selected'}>PUE · Una sola exhibición</option><option${credito?' selected':''}>PPD · En parcialidades o diferido</option></select></div></div>
+      ${CAL.filter(k => v.lin[k]).map(k => `<div class="lin"><span>${NOM[k]}<br><small style="color:var(--tinta-2)">${v.lin[k]*10} kg × ${dinero(S.precios.mayoreo[k])}</small></span><span></span><span style="text-align:right">${dinero(v.lin[k]*10*S.precios.mayoreo[k])}</span></div>`).join('')}
+      <div class="lin"><span>IVA tasa 0% · aguacate en estado natural</span><span></span><span style="text-align:right">$0.00</span></div>
+      <div class="tot"><span>Total</span><span>${dinero(tot)}</span></div>
+      <button class="btn p w" id="timbrar">Timbrar factura</button>`;
+    $('timbrar').addEventListener('click', () => {
+      const folio = 'A-' + S.fnum++;
+      S.facturas.unshift({folio, cliente:v.cliente, total:tot, uuid:nuevoUUID(), estado:'Vigente'});
+      S.porFacturar.splice(S.facSel, 1); S.facSel = 0;
+      toast(`Factura <b>${folio}</b> timbrada por el PAC. El cliente ya la puede descargar en su portal.`);
+      renderFacturas();
+    });
+  }
+  $('emitidas').innerHTML = S.facturas.map((f,i) => `<tr><td>${f.folio}</td><td>${f.cliente}</td><td class="num">${dinero(f.total)}</td><td style="font-family:'Courier New',monospace;font-size:12px">${f.uuid.slice(0,8)}…${f.uuid.slice(-4)}</td><td><span class="pill ${f.estado==='Vigente'?'ok':'mal'}">${f.estado}</span></td><td>${f.estado==='Vigente'?`<button class="btn s chico" data-c="${i}">Cancelar</button>`:''}</td></tr>`).join('');
+  $('emitidas').querySelectorAll('[data-c]').forEach(b => b.addEventListener('click', () => { S.facturas[Number(b.dataset.c)].estado = 'Cancelada'; toast('Factura cancelada ante el SAT a través del PAC.'); renderFacturas(); }));
+}
 
 /* ================= ENTREGAS ================= */
 function renderEntregas(){
@@ -635,7 +709,11 @@ function renderEntregas(){
     const rech = rechazadas(act);
     for (const k in act.lin){ S.inv.camion[k] = Math.max(0, S.inv.camion[k] - S.entLin[k]*10); }
     if (rech) S.merma.p += rech*10;
-    S.ventas.push({punto:'camion', cajero:'Beto (ruta)', metodo:act.cobro?'Efectivo':'Crédito', total:CAL.reduce((a,k)=>a+(S.entLin[k]||0)*10*S.precios.mayoreo[k],0), lin:CAL.filter(k=>S.entLin[k]).map(k=>({k, kg:S.entLin[k]*10, p:S.precios.mayoreo[k]}))});
+    const entregado = soloConCajas(S.entLin), total = impLin(entregado);
+    S.ventas.push({punto:'camion', cajero:'Beto (ruta)', metodo:act.cobro?'Efectivo':'Crédito', total, lin:CAL.filter(k=>entregado[k]).map(k=>({k, kg:entregado[k]*10, p:S.precios.mayoreo[k]}))});
+    const cuenta = S.cxc.find(c => c.cliente === act.cliente);
+    if (!act.cobro && cuenta) cuenta.saldo += total;
+    if (FISCAL[act.cliente] && total) S.porFacturar.push({origen:'Entrega ruta 2', cliente:act.cliente, lin:entregado, pago:act.cobro?'Efectivo':'Crédito'});
     act.hecho = true; act.estado = (act.cobro?'Cobrado ':'Entregado ') + hora(); S.efectivo += act.cobro;
     if (S.sinSenal) S.porSubir++;
     toast(`Entrega a <b>${act.cliente}</b> confirmada${act.cobro?', cobrados '+dinero0(act.cobro):''}${S.sinSenal?'. Guardada en el celular; se subirá cuando haya señal.':'. Ya está en el sistema.'}`);
@@ -688,6 +766,9 @@ function renderReportes(){
   $('r-hoy').innerHTML = `${dinero0(hoy)}<small>Vendido hoy · todos los puntos</small>`;
   const invTot = Object.values(S.inv).reduce((a,i)=>a+CAL.reduce((b,k)=>b+i[k],0),0);
   $('r-inv').innerHTML = `${kgf(Math.round(invTot))} kg<small>En existencia · bodega, sucursales y camiones</small>`;
+  const vencidos = S.cxc.filter(c => c.dias > 0);
+  $('r-cxc').innerHTML = `${dinero0(vencidos.reduce((a,c)=>a+c.saldo,0))}<small>Por cobrar vencido · ${vencidos.length} clientes</small>`;
+  $('cxc').innerHTML = S.cxc.slice().sort((a,b)=>b.dias-a.dias).map(c => `<tr><td>${c.cliente}</td><td class="num">${dinero0(c.saldo)}</td><td>${c.dias>0?`<span class="pill ${c.dias>15?'mal':'pend'}">Vencido hace ${c.dias} días</span>`:`<span class="pill ok">Vence en ${-c.dias} días</span>`}</td></tr>`).join('');
   const cajeros = {'Rosa M.':{t:184,ef:28900,tj:12400},'Ana':{t:96,ef:14200,tj:0},'Beto (ruta)':{t:2,ef:4400,tj:0}};
   for (const v of S.ventas){ const c = cajeros[v.cajero] ||= {t:0,ef:0,tj:0}; c.t++; if (v.metodo==='Efectivo') c.ef += v.total; else if (v.metodo!=='Crédito') c.tj += v.total; }
   $('corte').innerHTML = Object.entries(cajeros).map(([n,c]) => `<tr><td>${n}</td><td class="num">${c.t}</td><td class="num">${dinero0(c.ef)}</td><td class="num">${dinero0(c.tj)}</td><td class="num"><b>${dinero0(c.ef+c.tj)}</b></td></tr>`).join('');
@@ -699,7 +780,7 @@ function renderReportes(){
 }
 
 /* ================= RENDER GENERAL ================= */
-function renderTodo(){ renderMostrador(); renderPesador(); renderDescarga(); renderPedidos(); renderEntregas(); renderSucursales(); renderReportes(); actualizarBadges(); }
+function renderTodo(){ renderMostrador(); renderPesador(); renderDescarga(); renderPedidos(); renderEntregas(); renderFacturas(); renderSucursales(); renderReportes(); actualizarBadges(); }
 renderTodo();
 </script>
 </body>
